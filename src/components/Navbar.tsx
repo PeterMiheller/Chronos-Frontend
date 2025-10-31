@@ -3,20 +3,19 @@ import { User, FileText, Calendar, Bell, Settings } from "lucide-react";
 import "./Navbar.css";
 
 interface NavbarProps {
-  activeTab?: string;
-  setActiveTab?: (tab: string) => void;
   userData?: {
     name: string;
   };
 }
 
-const Navbar = ({ activeTab, setActiveTab, userData }: NavbarProps) => {
+const Navbar = ({ userData }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === "/dashboard";
   const isVacationRequests = location.pathname === "/vacation-requests";
+  const isCalendar = location.pathname === "/calendar";
   const isLanding = location.pathname === "/";
-  const showDashboardNav = isDashboard || isVacationRequests;
+  const showDashboardNav = isDashboard || isVacationRequests || isCalendar;
 
   return (
     <nav className="chronos-navbar">
@@ -29,19 +28,13 @@ const Navbar = ({ activeTab, setActiveTab, userData }: NavbarProps) => {
           <>
             <div className="chronos-navbar-tabs">
               <button
-                onClick={() => {
-                  setActiveTab?.("dashboard");
-                  navigate("/dashboard");
-                }}
+                onClick={() => navigate("/dashboard")}
                 className={`chronos-nav-tab ${isDashboard ? "active" : ""}`}
               >
                 <User size={18} /> Dashboard
               </button>
               <button
-                onClick={() => {
-                  setActiveTab?.("requests");
-                  navigate("/vacation-requests");
-                }}
+                onClick={() => navigate("/vacation-requests")}
                 className={`chronos-nav-tab ${
                   isVacationRequests ? "active" : ""
                 }`}
@@ -49,10 +42,8 @@ const Navbar = ({ activeTab, setActiveTab, userData }: NavbarProps) => {
                 <FileText size={18} /> Vacation Requests
               </button>
               <button
-                onClick={() => setActiveTab?.("calendar")}
-                className={`chronos-nav-tab ${
-                  activeTab === "calendar" ? "active" : ""
-                }`}
+                onClick={() => navigate("/calendar")}
+                className={`chronos-nav-tab ${isCalendar ? "active" : ""}`}
               >
                 <Calendar size={18} /> Work Calendar
               </button>

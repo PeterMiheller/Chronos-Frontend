@@ -5,11 +5,11 @@ import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import { useState } from "react";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
+import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import Navbar from "./components/Navbar.tsx";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [activeTab, setActiveTab] = useState("dashboard");
   const location = useLocation();
 
   const userData = {
@@ -20,13 +20,7 @@ function App() {
 
   return (
     <div className="App">
-      {location.pathname !== "/auth" && (
-        <Navbar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          userData={userData}
-        />
-      )}
+      {location.pathname !== "/auth" && <Navbar userData={userData} />}
       <Routes>
         <Route
           path="/auth"
@@ -46,6 +40,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <ChronosVacationRequests />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ChronosCalendarView />
             </ProtectedRoute>
           }
         />
