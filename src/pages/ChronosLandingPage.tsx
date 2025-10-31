@@ -1,14 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import './ChronosLandingPage.css';
-import Navbar from '../components/Navbar';
 
 const ChronosLandingPage = () => {
     const navigate = useNavigate();
 
     return (
         <div className="landing-container">
-            <Navbar />
-
             <main className="main">
                 <div className="hero">
                     <h1 className="title">Time tracking for teams</h1>

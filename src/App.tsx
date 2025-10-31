@@ -1,35 +1,48 @@
-import './App.css'
 import ChronosAuth from "./pages/ChronosAuth.tsx";
-import {  Routes, Route } from 'react-router-dom';
-import ChronosDashboard from './pages/ChronosDashboard';
+import { Routes, Route, useLocation } from "react-router-dom";
+import ChronosDashboard from "./pages/ChronosDashboard";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
-import {useState} from "react";
+import { useState } from "react";
+import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
+import Navbar from "./components/Navbar.tsx";
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const location = useLocation();
 
-    return (
-        <div className="App">
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <ChronosAuth
-                            setIsAuthenticated={setIsAuthenticated}
-                        />
-                    }
-                />
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute isAuthenticated={isAuthenticated}>
-                            <ChronosDashboard />
-                        </ProtectedRoute>
-                    }
-                />
-            </Routes>
-        </div>
-    );
+  const userData = {
+    name: "John Doe",
+    role: "Employee",
+    company: "Tech Solutions GmbH",
+  };
+
+  return (
+    <div className="App">
+      {location.pathname !== "/auth" && (
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          userData={userData}
+        />
+      )}
+      <Routes>
+        <Route
+          path="/auth"
+          element={<ChronosAuth setIsAuthenticated={setIsAuthenticated} />}
+        />
+        <Route path="/" element={<ChronosLandingPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ChronosDashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
+  );
 }
 
 export default App;
