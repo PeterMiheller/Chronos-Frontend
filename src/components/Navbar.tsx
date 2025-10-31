@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, FileText, Calendar, Bell, Settings } from "lucide-react";
+import { User, FileText, Calendar, Bell, Settings, LogOut } from "lucide-react";
 import "./Navbar.css";
 
 interface NavbarProps {
@@ -14,8 +14,11 @@ const Navbar = ({ userData }: NavbarProps) => {
   const isDashboard = location.pathname === "/dashboard";
   const isVacationRequests = location.pathname === "/vacation-requests";
   const isCalendar = location.pathname === "/calendar";
+  const isProfile = location.pathname === "/profile";
+  const isSettings = location.pathname === "/settings";
   const isLanding = location.pathname === "/";
-  const showDashboardNav = isDashboard || isVacationRequests || isCalendar;
+  const showDashboardNav =
+    isDashboard || isVacationRequests || isCalendar || isProfile || isSettings;
 
   return (
     <nav className="chronos-navbar">
@@ -51,8 +54,17 @@ const Navbar = ({ userData }: NavbarProps) => {
 
             <div className="chronos-navbar-user">
               <Bell size={20} className="chronos-icon" />
-              <Settings size={20} className="chronos-icon" />
-              <div className="chronos-user-info">
+              <Settings
+                size={20}
+                className="chronos-icon"
+                onClick={() => navigate("/settings")}
+                style={{ cursor: "pointer" }}
+              />
+              <div
+                className="chronos-user-info"
+                onClick={() => navigate("/profile")}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="chronos-user-avatar">
                   {userData?.name
                     .split(" ")
@@ -63,6 +75,14 @@ const Navbar = ({ userData }: NavbarProps) => {
                   {userData?.name || "User"}
                 </span>
               </div>
+              <button
+                className="chronos-logout-btn"
+                onClick={() => navigate("/auth")}
+                title="Logout"
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
             </div>
           </>
         )}

@@ -111,6 +111,26 @@
   background: linear-gradient(to right, #1d4ed8, #4338ca);
 }
 
+.chronos-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chronos-logout-btn:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
 @media (max-width: 768px) {
   .chronos-navbar {
     padding: 1rem 1.5rem;
@@ -122,5 +142,13 @@
 
   .chronos-user-name {
     display: none;
+  }
+
+  .chronos-logout-btn span {
+    display: none;
+  }
+
+  .chronos-logout-btn {
+    padding: 0.5rem;
   }
 }

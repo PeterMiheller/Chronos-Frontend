@@ -1,0 +1,279 @@
+.settings-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #eff6ff, #eef2ff, #f5f3ff);
+  padding: 2rem;
+}
+
+.settings-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.settings-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 2rem;
+}
+
+.settings-section {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings-section-icon {
+  color: #2563eb;
+}
+
+.settings-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.settings-section-description {
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  font-size: 0.875rem;
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-item-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+}
+
+.settings-item-icon {
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.settings-item-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.settings-item-description {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Toggle Switch */
+.settings-toggle {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: 0.3s;
+  border-radius: 28px;
+}
+
+.settings-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.settings-toggle input:checked + .settings-toggle-slider {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+}
+
+.settings-toggle input:checked + .settings-toggle-slider:before {
+  transform: translateX(24px);
+}
+
+/* Theme Buttons */
+.settings-theme-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.settings-theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-theme-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.settings-theme-btn.active {
+  border-color: #2563eb;
+  background: linear-gradient(to bottom right, #eff6ff, #eef2ff);
+  color: #2563eb;
+}
+
+/* Select Dropdown */
+.settings-select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e293b;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 200px;
+}
+
+.settings-select:hover {
+  border-color: #cbd5e1;
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* Action Buttons */
+.settings-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.settings-save-btn,
+.settings-cancel-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.settings-save-btn {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  color: white;
+}
+
+.settings-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.settings-cancel-btn {
+  background: white;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+.settings-cancel-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 1rem;
+  }
+
+  .settings-title {
+    font-size: 1.5rem;
+  }
+
+  .settings-section {
+    padding: 1.5rem;
+  }
+
+  .settings-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .settings-theme-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .settings-theme-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-select {
+    width: 100%;
+  }
+
+  .settings-actions {
+    flex-direction: column-reverse;
+  }
+
+  .settings-save-btn,
+  .settings-cancel-btn {
+    width: 100%;
+  }
+}
