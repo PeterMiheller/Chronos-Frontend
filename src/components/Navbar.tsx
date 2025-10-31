@@ -14,7 +14,9 @@ const Navbar = ({ activeTab, setActiveTab, userData }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === "/dashboard";
+  const isVacationRequests = location.pathname === "/vacation-requests";
   const isLanding = location.pathname === "/";
+  const showDashboardNav = isDashboard || isVacationRequests;
 
   return (
     <nav className="chronos-navbar">
@@ -23,21 +25,25 @@ const Navbar = ({ activeTab, setActiveTab, userData }: NavbarProps) => {
           Chronos
         </h1>
 
-        {isDashboard && (
+        {showDashboardNav && (
           <>
             <div className="chronos-navbar-tabs">
               <button
-                onClick={() => setActiveTab?.("dashboard")}
-                className={`chronos-nav-tab ${
-                  activeTab === "dashboard" ? "active" : ""
-                }`}
+                onClick={() => {
+                  setActiveTab?.("dashboard");
+                  navigate("/dashboard");
+                }}
+                className={`chronos-nav-tab ${isDashboard ? "active" : ""}`}
               >
                 <User size={18} /> Dashboard
               </button>
               <button
-                onClick={() => setActiveTab?.("requests")}
+                onClick={() => {
+                  setActiveTab?.("requests");
+                  navigate("/vacation-requests");
+                }}
                 className={`chronos-nav-tab ${
-                  activeTab === "requests" ? "active" : ""
+                  isVacationRequests ? "active" : ""
                 }`}
               >
                 <FileText size={18} /> Vacation Requests

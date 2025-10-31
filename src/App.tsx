@@ -4,6 +4,7 @@ import ChronosDashboard from "./pages/ChronosDashboard";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import { useState } from "react";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
+import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
 import Navbar from "./components/Navbar.tsx";
 
 function App() {
@@ -37,6 +38,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <ChronosDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vacation-requests"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ChronosVacationRequests />
             </ProtectedRoute>
           }
         />
