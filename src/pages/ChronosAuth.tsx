@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import './ChronosAuth.css'; // import CSS-ul separat
+import { useNavigate } from 'react-router-dom';
+import './ChronosAuth.css';
 
-const ChronosAuth = () => {
+interface ChronosAuthProps {
+    setIsAuthenticated: (value: boolean) => void;
+}
+
+const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         email: '',
@@ -13,6 +18,8 @@ const ChronosAuth = () => {
         role: 'employee'
     });
 
+    const navigate = useNavigate();
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
@@ -22,9 +29,15 @@ const ChronosAuth = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
         if (isLogin) {
             console.log('Login:', { email: formData.email, password: formData.password });
-            alert('Login functionality - to be implemented');
+
+            // aici marcăm userul ca logat
+            setIsAuthenticated(true);
+
+            // redirecționează către dashboard
+            navigate('/dashboard');
         } else {
             console.log('Register:', formData);
             alert('Register functionality - to be implemented');
@@ -59,7 +72,7 @@ const ChronosAuth = () => {
                         {isLogin ? 'Login' : 'Register'}
                     </h2>
 
-                    <div className="chronos-form">
+                    <form className="chronos-form" onSubmit={handleSubmit}>
                         {!isLogin && (
                             <>
                                 <div className="chronos-row">
@@ -157,6 +170,7 @@ const ChronosAuth = () => {
                                     <span>Remember me</span>
                                 </label>
                                 <button
+                                    type="button"
                                     onClick={() => alert('Forgot password - to be implemented')}
                                     className="chronos-forgot"
                                 >
@@ -165,13 +179,10 @@ const ChronosAuth = () => {
                             </div>
                         )}
 
-                        <button
-                            onClick={handleSubmit}
-                            className="chronos-submit"
-                        >
+                        <button type="submit" className="chronos-submit">
                             {isLogin ? 'Login' : 'Create Account'}
                         </button>
-                    </div>
+                    </form>
 
                     <div className="chronos-toggle">
                         <p>
