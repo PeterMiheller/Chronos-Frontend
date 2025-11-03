@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ChronosAuth.css';
+import type { ChronosAuthProps } from '../interfaces/ChronosAuthProps';
 
-interface ChronosAuthProps {
-    setIsAuthenticated: (value: boolean) => void;
-}
 
 const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
     const [isLogin, setIsLogin] = useState(true);
