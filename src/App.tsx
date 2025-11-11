@@ -2,7 +2,7 @@ import ChronosAuth from "./pages/ChronosAuth.tsx";
 import { Routes, Route, useLocation } from "react-router-dom";
 import ChronosDashboard from "./pages/ChronosDashboard";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
 import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
@@ -11,12 +11,21 @@ import ChronosSettings from "./pages/ChronosSettings.tsx";
 import Navbar from "./components/Navbar.tsx";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
 
+  // Check for existing token on app load
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // Get user data from localStorage or use defaults
   const userData = {
-    name: "John Doe",
-    role: "Employee",
+    name: localStorage.getItem("userName") || "John Doe",
+    role: localStorage.getItem("userRole") || "Employee",
     company: "Tech Solutions GmbH",
   };
 

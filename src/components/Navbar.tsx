@@ -20,6 +20,16 @@ const Navbar = ({ userData }: NavbarProps) => {
   const showDashboardNav =
     isDashboard || isVacationRequests || isCalendar || isProfile || isSettings;
 
+  const handleLogout = () => {
+    // Clear all stored data
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
+    // Navigate to auth page
+    navigate("/auth");
+  };
+
   return (
     <nav className="chronos-navbar">
       <div className="chronos-navbar-inner">
@@ -77,7 +87,7 @@ const Navbar = ({ userData }: NavbarProps) => {
               </div>
               <button
                 className="chronos-logout-btn"
-                onClick={() => navigate("/auth")}
+                onClick={handleLogout}
                 title="Logout"
               >
                 <LogOut size={18} />
