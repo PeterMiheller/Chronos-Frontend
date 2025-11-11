@@ -43,9 +43,18 @@ const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
         });
         console.log("Login successful:", response.data);
 
-        // Store token if backend returns one
+        // Store token and user data from backend response
         if (response.data.token) {
           localStorage.setItem("authToken", response.data.token);
+        }
+        if (response.data.email) {
+          localStorage.setItem("userEmail", response.data.email);
+        }
+        if (response.data.name) {
+          localStorage.setItem("userName", response.data.name);
+        }
+        if (response.data.role) {
+          localStorage.setItem("userRole", response.data.role);
         }
 
         // Mark user as authenticated
