@@ -9,6 +9,7 @@ import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import ChronosSettings from "./pages/ChronosSettings.tsx";
 import Navbar from "./components/Navbar.tsx";
+import ChronosEmployeeRequests from "./pages/ChronosEmployeeRequests.tsx";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -78,6 +79,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route
+              path="/admin/employee-requests"
+              element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <ChronosEmployeeRequests />
+                  </ProtectedRoute>
+              }
+          />
       </Routes>
     </div>
   );
