@@ -2,6 +2,7 @@ import "./ChronosCalendarView.css";
 import { ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { eventService, type Event } from "../api/eventService";
+import { timesheetService } from "../api/timesheetService";
 
 const ChronosCalendarView = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -9,7 +10,10 @@ const ChronosCalendarView = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedDayEvents, setSelectedDayEvents] = useState<Event[]>([]);
+  const [selectedDayISO, setSelectedDayISO] = useState<string>("");
+  const [hoursInput, setHoursInput] = useState<string>("");
   const [events, setEvents] = useState<Event[]>([]);
+  const [timesheetMap, setTimesheetMap] = useState<Record<string, number>>({});
   const [eventType, setEventType] = useState<"TEAM_MEETING" | "PROJECT_DEADLINE">("TEAM_MEETING");
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("");
@@ -21,8 +25,9 @@ const ChronosCalendarView = () => {
     console.log("User role from localStorage:", userRole); // Debug log
     setIsManager(userRole === "ADMINISTRATOR");
 
-    // Fetch events for the current month
+    // Fetch events and timesheets for the current month
     fetchEvents();
+    fetchTimesheets();
   }, [currentMonth]);
 
   const fetchEvents = async () => {
@@ -50,6 +55,26 @@ const ChronosCalendarView = () => {
   };
 
   const { firstDay, daysInMonth } = getDaysInMonth(currentMonth);
+
+  const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+  const getISOForDay = (day: number) => {
+    return `${currentMonth.getFullYear()}-${pad2(currentMonth.getMonth() + 1)}-${pad2(day)}`;
+  };
+
+  const fetchTimesheets = async () => {
+    try {
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth() + 1;
+      const entries = await timesheetService.getForMonth(year, month);
+      const map: Record<string, number> = {};
+      entries.forEach((e) => {
+        map[e.date] = e.hours;
+      });
+      setTimesheetMap(map);
+    } catch (err) {
+      console.error("Error fetching timesheets:", err);
+    }
+  };
 
   const previousMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
@@ -102,15 +127,19 @@ const ChronosCalendarView = () => {
 
   const handleDayClick = (day: number) => {
     const dayEvents = getEventForDay(day);
-    if (dayEvents.length > 0) {
-      setSelectedDayEvents(dayEvents);
-      setShowDetailsModal(true);
-    }
+    const iso = getISOForDay(day);
+    setSelectedDayISO(iso);
+    setSelectedDayEvents(dayEvents);
+    const existingHours = timesheetMap[iso];
+    setHoursInput(existingHours != null ? String(existingHours) : "");
+    setShowDetailsModal(true);
   };
 
   const handleCloseDetailsModal = () => {
     setShowDetailsModal(false);
     setSelectedDayEvents([]);
+    setSelectedDayISO("");
+    setHoursInput("");
   };
 
   const handleDeleteEvent = async (eventId: number) => {
@@ -147,6 +176,49 @@ const ChronosCalendarView = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const saveHours = async () => {
+    if (!selectedDayISO) return;
+    const num = parseFloat(hoursInput);
+    if (Number.isNaN(num) || num < 0) {
+      alert("Please enter a valid number of hours (>= 0)");
+      return;
+    }
+    try {
+      await timesheetService.setHours(selectedDayISO, num);
+      // update local map
+      setTimesheetMap((prev) => ({ ...prev, [selectedDayISO]: num }));
+      alert("Hours saved");
+    } catch (e) {
+      console.error("Failed to save hours", e);
+      alert("Failed to save hours");
+    }
+  };
+
+  const clearHours = async (isoDate: string) => {
+    try {
+      await timesheetService.deleteEntry(isoDate);
+      setTimesheetMap((prev) => {
+        const next = { ...prev };
+        delete next[isoDate];
+        return next;
+      });
+      if (selectedDayISO === isoDate) setHoursInput("");
+    } catch (e) {
+      console.error("Failed to clear hours", e);
+      alert("Failed to clear hours");
+    }
+  };
+
+  const getWorkClassForDay = (day: number) => {
+    const iso = getISOForDay(day);
+    const h = timesheetMap[iso];
+    if (h == null) return "";
+    const tol = 0.001;
+    if (Math.abs(h - 8) <= tol) return "workhours-full";
+    if (h < 8) return "workhours-under";
+    return "workhours-over";
   };
 
   const getEventForDay = (day: number) => {
@@ -189,13 +261,31 @@ const ChronosCalendarView = () => {
         currentMonth.getMonth() === new Date().getMonth() &&
         currentMonth.getFullYear() === new Date().getFullYear();
 
+      const workClass = getWorkClassForDay(day);
+      const iso = getISOForDay(day);
+      const dayHours = timesheetMap[iso];
       days.push(
         <div 
           key={day} 
-          className={`calendar-day ${isToday ? 'today' : ''} ${dayEvents.length > 0 ? 'has-event' : ''}`}
+          className={`calendar-day ${isToday ? 'today' : ''} ${dayEvents.length > 0 ? 'has-event' : ''} ${workClass}`}
           onClick={() => handleDayClick(day)}
         >
           <span className="day-number">{day}</span>
+          {dayHours != null && (
+            <div className="hours-badge" onClick={(e) => e.stopPropagation()}>
+              <span className="hours-badge-value">{dayHours}h</span>
+              <button
+                className="hours-badge-clear"
+                title="Clear hours"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearHours(iso);
+                }}
+              >
+                ×
+              </button>
+            </div>
+          )}
           {dayEvents.map((event, index) => (
             <div key={index} className={`event-indicator ${getEventTypeClass(event)}`}>
               {getEventLabel(event)}
@@ -255,6 +345,18 @@ const ChronosCalendarView = () => {
             <div className="legend-item">
               <span className="legend-dot deadline"></span>
               <span>Deadline</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot" style={{ background: '#10b981' }}></span>
+              <span>8h (Full day)</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot" style={{ background: '#ef4444' }}></span>
+              <span>&lt; 8h (Under)</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot" style={{ background: '#8b5cf6' }}></span>
+              <span>&gt; 8h (Overtime)</span>
             </div>
           </div>
         </div>
@@ -347,6 +449,34 @@ const ChronosCalendarView = () => {
               </div>
 
               <div className="modal-body">
+                {/* Hours form */}
+                <div className="form-group">
+                  <label>Log hours for {selectedDayISO || "selected day"}</label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.5}
+                      value={hoursInput}
+                      onChange={(e) => setHoursInput(e.target.value)}
+                      placeholder="e.g. 8"
+                      className="form-input"
+                      style={{ maxWidth: '140px' }}
+                    />
+                    <button type="button" className="btn-submit" onClick={saveHours}>Save</button>
+                    {selectedDayISO && timesheetMap[selectedDayISO] != null && (
+                      <button
+                        type="button"
+                        className="btn-cancel"
+                        onClick={() => clearHours(selectedDayISO)}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Events list */}
                 {selectedDayEvents.length > 0 ? (
                   <div className="event-details-list">
                     {selectedDayEvents.map((event) => (
