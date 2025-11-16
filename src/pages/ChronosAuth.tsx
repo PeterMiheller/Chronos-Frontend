@@ -56,6 +56,9 @@ const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
         if (response.data.role) {
           localStorage.setItem("userRole", response.data.role);
         }
+        if (response.data.companyId) {
+          localStorage.setItem("userCompanyId", response.data.companyId.toString());
+        }
 
         // Mark user as authenticated
         setIsAuthenticated(true);
