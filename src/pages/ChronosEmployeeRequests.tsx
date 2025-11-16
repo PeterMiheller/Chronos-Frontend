@@ -1,7 +1,9 @@
 import "./ChronosEmployeeRequests.css";
 import  { useState } from 'react';
+import { vacationService } from "../api/vacationService";
+import type { VacationStatus} from "../api/vacationService";
 
-// This is our full hardcoded data source
+
 const allRequests = [
     { id: 1, startDate: "2024-12-20", endDate: "2024-12-27", days: 6, status: "Approved", employeeName: "Mihai Popescu" },
     { id: 2, startDate: "2024-11-15", endDate: "2024-11-18", days: 2, status: "Pending", employeeName: "Ana Ionescu" },
@@ -29,6 +31,9 @@ const ChronosEmployeeRequests = () => {
     const [processedRequests, setProcessedRequests] = useState<EmployeeRequest[]>(() =>
         allRequests.filter(req => req.status === "Approved" || req.status === "Rejected")
     );
+    const [actionLoading, setActionLoading] = useState<boolean>(false);
+    const [apiError, setApiError] = useState<string | null>(null);
+
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -39,36 +44,49 @@ const ChronosEmployeeRequests = () => {
         }
     };
 
+    const processRequest = async (id: number, newStatus: VacationStatus) => {
+        setActionLoading(true);
+        setApiError(null);
+
+        const requestToMove = pendingRequests.find(req => req.id === id);
+        if (!requestToMove) {
+            setApiError("Error: Request not found in the pending list.");
+            setActionLoading(false);
+            return;
+        }
+
+        try {
+
+            await vacationService.updateVacationRequestStatus(id, newStatus);
+
+            setPendingRequests(current => current.filter(req => req.id !== id));
+
+            setProcessedRequests(current => [{ ...requestToMove, status: newStatus }, ...current]);
+
+        } catch (err) {
+            console.error(err);
+
+            setApiError(`Failed to update request #${id}. Please try again.`);
+        } finally {
+            setActionLoading(false); // Re-enable buttons
+        }
+    };
 
     const handleApprove = (id: number) => {
-        alert(`Approving request #${id}. (This will be an API call)`);
-
-        // Find the request to move
-        const requestToMove = pendingRequests.find(req => req.id === id);
-        if (!requestToMove) return;
-
-        // 1. Remove from pending list
-        setPendingRequests(current => current.filter(req => req.id !== id));
-
-        // 2. Add to processed list with the new status
-        setProcessedRequests(current => [{ ...requestToMove, status: "Approved" }, ...current]);
+        processRequest(id, "APPROVED");
     };
 
-    // Simulates rejecting a request
     const handleReject = (id: number) => {
-        alert(`Rejecting request #${id}. (This will be an API call)`);
-
-        const requestToMove = pendingRequests.find(req => req.id === id);
-        if (!requestToMove) return;
-
-        // 1. Remove from pending list
-        setPendingRequests(current => current.filter(req => req.id !== id));
-
-        // 2. Add to processed list with the new status
-        setProcessedRequests(current => [{ ...requestToMove, status: "Rejected" }, ...current]);
+        processRequest(id, "REJECTED");
     };
-    // --- END UPDATED ACTION LOGIC ---
 
+    const calculateDays = (start: string, end: string): number => {
+            const date1 = new Date(start);
+            const date2 = new Date(end);
+            const diffTime = Math.abs(date2.getTime() - date1.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays + 1;
+    };
     return (
         <div className="vacation-requests-page">
             <main className="vacation-main-content">
@@ -78,6 +96,13 @@ const ChronosEmployeeRequests = () => {
                     <div className="requests-header">
                         <h2>Pending Employee Requests</h2>
                     </div>
+
+                    {apiError && (
+                        <div style={{ color: 'red', marginBottom: '1rem', border: '1px solid red', padding: '0.5rem', borderRadius: '0.5rem' }}>
+                            <strong>Error:</strong> {apiError}
+                        </div>
+                    )}
+
                     <table className="requests-table">
                         <thead>
                         <tr>
@@ -85,7 +110,6 @@ const ChronosEmployeeRequests = () => {
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Days</th>
-                            {/* The 'Status' column is removed, as they are all pending */}
                             <th>Actions</th>
                         </tr>
                         </thead>
@@ -94,14 +118,15 @@ const ChronosEmployeeRequests = () => {
                             pendingRequests.map((req) => (
                                 <tr key={req.id}>
                                     <td>{req.employeeName}</td>
-                                    <td>{req.startDate}</td>
-                                    <td>{req.endDate}</td>
-                                    <td>{req.days}</td>
+                                    <td>{new Date(req.startDate).toLocaleDateString()}</td>
+                                    <td>{new Date(req.endDate).toLocaleDateString()}</td>
+                                    <td>{calculateDays(req.startDate, req.endDate)}</td>
                                     <td>
-                                        <button
+                                         <button
                                             onClick={() => handleApprove(req.id)}
                                             className="admin-action-btn admin-approve-btn"
                                             title="Approve Request"
+                                            disabled={actionLoading}
                                         >
                                             Approve
                                         </button>
@@ -109,9 +134,11 @@ const ChronosEmployeeRequests = () => {
                                             onClick={() => handleReject(req.id)}
                                             className="admin-action-btn admin-reject-btn"
                                             title="Reject Request"
+                                            disabled={actionLoading}
                                         >
                                             Reject
                                         </button>
+
                                     </td>
                                 </tr>
                             ))
@@ -126,7 +153,7 @@ const ChronosEmployeeRequests = () => {
                     </table>
                 </section>
 
-                {/* --- SECTION 2: PROCESSED REQUESTS --- */}
+                {/* --- SECTION 2: PROCESSED REQUESTS (from hardcoded data) --- */}
                 <section className="requests-section" style={{ marginTop: '2rem' }}>
                     <div className="requests-header">
                         <h2>Processed Requests</h2>
@@ -138,7 +165,7 @@ const ChronosEmployeeRequests = () => {
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Days</th>
-                            <th>Status</th> {/* Status column is back */}
+                            <th>Status</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -146,9 +173,9 @@ const ChronosEmployeeRequests = () => {
                             processedRequests.map((req) => (
                                 <tr key={req.id}>
                                     <td>{req.employeeName}</td>
-                                    <td>{req.startDate}</td>
-                                    <td>{req.endDate}</td>
-                                    <td>{req.days}</td>
+                                    <td>{new Date(req.startDate).toLocaleDateString()}</td>
+                                    <td>{new Date(req.endDate).toLocaleDateString()}</td>
+                                    <td>{calculateDays(req.startDate, req.endDate)}</td>
                                     <td>
                                         <span className={`status-badge ${getStatusColor(req.status)}`}>
                                           {req.status}

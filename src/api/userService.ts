@@ -36,4 +36,9 @@ export const userService = {
     const response = await api.put(`/users/${id}`, data);
     return response.data;
   },
+
+  getEmployeesByAdministrator: async (adminId: number): Promise<User[]> => {
+    const response = await api.get(`/users/administrator/${adminId}/employees`);
+    return response.data;
+  },
 };
