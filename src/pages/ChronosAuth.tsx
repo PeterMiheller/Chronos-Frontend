@@ -24,6 +24,8 @@ const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
             [e.target.name]: e.target.value
         });
     };
+    console.log("TEST1234")
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

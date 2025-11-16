@@ -18,11 +18,12 @@
 }
 
 .chronos-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    background: linear-gradient(to right, #2563eb, #4f46e5);
-    -webkit-background-clip: text;
-    color: transparent;
+  font-size: 2.5rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .chronos-subtitle {

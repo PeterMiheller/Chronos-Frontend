@@ -9,10 +9,12 @@ import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import ChronosSettings from "./pages/ChronosSettings.tsx";
 import Navbar from "./components/Navbar.tsx";
+import ChronosAddVacationRequest from "./pages/ChronosAddVacationRequest.tsx";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const location = useLocation();
+  const state = location.state as { backgroundLocation?: Location };
 
   const userData = {
     name: "John Doe",
@@ -23,7 +25,8 @@ function App() {
   return (
     <div className="App">
       {location.pathname !== "/auth" && <Navbar userData={userData} />}
-      <Routes>
+
+      <Routes location={state?.backgroundLocation || location}>
         <Route
           path="/auth"
           element={<ChronosAuth setIsAuthenticated={setIsAuthenticated} />}
@@ -70,6 +73,19 @@ function App() {
           }
         />
       </Routes>
+
+      {state?.backgroundLocation && (
+        <Routes>
+          <Route
+            path="/vacation-requests/new"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <ChronosAddVacationRequest />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      )}
     </div>
   );
 }
