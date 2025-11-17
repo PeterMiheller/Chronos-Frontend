@@ -1,6 +1,7 @@
 import ChronosAuth from "./pages/ChronosAuth.tsx";
 import { Routes, Route, useLocation } from "react-router-dom";
 import ChronosDashboard from "./pages/ChronosDashboard";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import { useState, useEffect } from "react";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
@@ -24,8 +25,8 @@ function App() {
 
   // Get user data from localStorage or use defaults
   const userData = {
-    name: localStorage.getItem("userName") || "John Doe",
-    role: localStorage.getItem("userRole") || "Employee",
+    name: localStorage.getItem("userName") ?? "Guest",
+    role: localStorage.getItem("userRole") ?? "Employee",
     company: "Tech Solutions GmbH",
   };
 
@@ -75,6 +76,21 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <ChronosSettings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/superadmin"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              {localStorage.getItem("userRole") === "SUPERADMIN" ? (
+                <SuperAdminDashboard />
+              ) : (
+                <div style={{ textAlign: "center", padding: "3rem" }}>
+                  <h2>Access Denied</h2>
+                  <p>You don't have permission to access this page.</p>
+                </div>
+              )}
             </ProtectedRoute>
           }
         />
