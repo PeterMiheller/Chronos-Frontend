@@ -11,12 +11,11 @@ const ChronosDashboard = () => {
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState<string | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
-  const [vacationRequests, setVacationRequests] = useState<VacationRequest[]>([]);
+  const [vacationRequests, setVacationRequests] = useState<VacationRequest[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // demo only until login
-  const EMPLOYEE_ID = 5;
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -32,17 +31,46 @@ const ChronosDashboard = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch user data
-      const user = await userService.getUserById(EMPLOYEE_ID);
+      // Get logged-in user's ID from localStorage
+      const userId = localStorage.getItem("userId");
+      console.log("Fetching data for userId:", userId);
+      console.log("Auth token exists:", !!localStorage.getItem("authToken"));
+
+      if (!userId) {
+        setError("No user logged in. Please log in again.");
+        return;
+      }
+
+      console.log("Calling getUserById with:", userId);
+      const user = await userService.getUserById(userId);
+      console.log("User data received:", user);
       setUserData(user);
 
-      // Fetch vacation requests
-      const requests = await vacationService.getVacationRequestsByEmployee(EMPLOYEE_ID);
+      // Fetch vacation requests for this user
+      console.log("Fetching vacation requests for user ID:", user.id);
+      const requests = await vacationService.getVacationRequestsByEmployee(
+        user.id
+      );
+      console.log("Vacation requests received:", requests);
       setVacationRequests(requests);
-
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching employee data:", err);
-      setError("Failed to load employee data. Please try again.");
+      console.error("Error response:", err.response);
+      console.error("Error status:", err.response?.status);
+      console.error("Error data:", err.response?.data);
+
+      if (err.response?.status === 403) {
+        setError(
+          `Permission denied: ${
+            err.response?.data?.message ||
+            "You don't have access to this resource"
+          }`
+        );
+      } else if (err.response?.status === 401) {
+        setError("Your session has expired. Please log in again.");
+      } else {
+        setError(`Failed to load employee data: ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -105,7 +133,9 @@ const ChronosDashboard = () => {
     return (
       <div className="dashboard">
         <main className="main-content">
-          <div style={{ textAlign: "center", padding: "3rem", color: "#ef4444" }}>
+          <div
+            style={{ textAlign: "center", padding: "3rem", color: "#ef4444" }}
+          >
             <p>{error}</p>
             <button onClick={fetchEmployeeData} style={{ marginTop: "1rem" }}>
               Retry
@@ -164,7 +194,8 @@ const ChronosDashboard = () => {
           <div className="card">
             <h3>Remaining Vacation</h3>
             <p>
-              {userData.vacationDaysRemaining || 0} of {userData.vacationDaysTotal || 0} days
+              {userData.vacationDaysRemaining || 0} of{" "}
+              {userData.vacationDaysTotal || 0} days
             </p>
             <div
               style={{
@@ -179,7 +210,9 @@ const ChronosDashboard = () => {
                 style={{
                   width: `${
                     userData.vacationDaysTotal
-                      ? ((userData.vacationDaysRemaining || 0) / userData.vacationDaysTotal) * 100
+                      ? ((userData.vacationDaysRemaining || 0) /
+                          userData.vacationDaysTotal) *
+                        100
                       : 0
                   }%`,
                   height: "100%",
@@ -205,7 +238,9 @@ const ChronosDashboard = () => {
         <section className="vacation-requests" style={{ marginTop: "2rem" }}>
           <h2>Vacation Requests</h2>
           {vacationRequests.length === 0 ? (
-            <p style={{ textAlign: "center", color: "#6b7280", padding: "2rem" }}>
+            <p
+              style={{ textAlign: "center", color: "#6b7280", padding: "2rem" }}
+            >
               No vacation requests found
             </p>
           ) : (
@@ -220,17 +255,31 @@ const ChronosDashboard = () => {
                 }}
               >
                 <thead>
-                  <tr style={{ background: "#f9fafb", borderBottom: "2px solid #e5e7eb" }}>
+                  <tr
+                    style={{
+                      background: "#f9fafb",
+                      borderBottom: "2px solid #e5e7eb",
+                    }}
+                  >
                     <th style={{ padding: "1rem", textAlign: "left" }}>ID</th>
-                    <th style={{ padding: "1rem", textAlign: "left" }}>Start Date</th>
-                    <th style={{ padding: "1rem", textAlign: "left" }}>End Date</th>
-                    <th style={{ padding: "1rem", textAlign: "left" }}>Status</th>
+                    <th style={{ padding: "1rem", textAlign: "left" }}>
+                      Start Date
+                    </th>
+                    <th style={{ padding: "1rem", textAlign: "left" }}>
+                      End Date
+                    </th>
+                    <th style={{ padding: "1rem", textAlign: "left" }}>
+                      Status
+                    </th>
                     <th style={{ padding: "1rem", textAlign: "left" }}>PDF</th>
                   </tr>
                 </thead>
                 <tbody>
                   {vacationRequests.map((request) => (
-                    <tr key={request.id} style={{ borderBottom: "1px solid #e5e7eb" }}>
+                    <tr
+                      key={request.id}
+                      style={{ borderBottom: "1px solid #e5e7eb" }}
+                    >
                       <td style={{ padding: "1rem" }}>#{request.id}</td>
                       <td style={{ padding: "1rem" }}>
                         {new Date(request.startDate).toLocaleDateString()}
@@ -258,7 +307,10 @@ const ChronosDashboard = () => {
                             href={request.pdfPath}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: "#3b82f6", textDecoration: "underline" }}
+                            style={{
+                              color: "#3b82f6",
+                              textDecoration: "underline",
+                            }}
                           >
                             View PDF
                           </a>

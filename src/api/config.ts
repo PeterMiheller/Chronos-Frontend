@@ -4,6 +4,10 @@ export const API_BASE_URL = "http://localhost:8080/api/";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 // Add token to every request
@@ -26,12 +30,15 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    // Only redirect on 401 (unauthorized), not 403 (forbidden)
+    // 403 might be a permission issue, not an auth issue
+    if (error.response?.status === 401 && error.response?.status === 403) {
       // Token expired or invalid
       localStorage.removeItem("authToken");
       localStorage.removeItem("userName");
       localStorage.removeItem("userEmail");
       localStorage.removeItem("userRole");
+      localStorage.removeItem("userCompanyId");
       window.location.href = "/auth";
     }
     return Promise.reject(error);

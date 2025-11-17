@@ -1,17 +1,17 @@
-import { Navigate } from 'react-router-dom';
-import type {JSX} from "react";
+import { Navigate } from "react-router-dom";
+import type { JSX } from "react";
 
 interface ProtectedRouteProps {
-    isAuthenticated: boolean;
-    children: JSX.Element;
+  isAuthenticated: boolean;
+  children: JSX.Element;
 }
 
 function ProtectedRoute({ isAuthenticated, children }: ProtectedRouteProps) {
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
 
-    return children;
+  return children;
 }
 
 export default ProtectedRoute;

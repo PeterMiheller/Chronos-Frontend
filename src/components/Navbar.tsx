@@ -23,9 +23,11 @@ const Navbar = ({ userData }: NavbarProps) => {
   const handleLogout = () => {
     // Clear all stored data
     localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
     localStorage.removeItem("userName");
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("userCompanyId");
     // Navigate to auth page
     navigate("/auth");
   };
