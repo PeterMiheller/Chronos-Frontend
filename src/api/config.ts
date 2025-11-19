@@ -1,4 +1,5 @@
 import axios from "axios";
+import { isTokenExpired, logout } from "../utils/auth";
 
 export const API_BASE_URL = "http://localhost:8080/api/";
 
@@ -10,9 +11,20 @@ export const api = axios.create({
   },
 });
 
-// Add token to every request
+// Add token to every request and check expiration
 api.interceptors.request.use(
   (config) => {
+    // Skip token check for auth endpoints
+    if (config.url?.includes("/auth/")) {
+      return config;
+    }
+
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      logout();
+      return Promise.reject(new Error("Token expired"));
+    }
+
     const token = localStorage.getItem("authToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -24,23 +36,18 @@ api.interceptors.request.use(
   }
 );
 
-// Handle token expiration
+// Handle unauthorized responses
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-    // Only redirect on 401 (unauthorized), not 403 (forbidden)
-    // 403 might be a permission issue, not an auth issue
-    if (error.response?.status === 401 && error.response?.status === 403) {
-      // Token expired or invalid
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userEmail");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("userCompanyId");
-      window.location.href = "/auth";
+    // Redirect on 401 (unauthorized) - token is invalid or expired
+    if (error.response?.status === 401) {
+      logout();
     }
+    // Don't redirect on 403 (forbidden) - user doesn't have permission
+    // This is a different issue from authentication
     return Promise.reject(error);
   }
 );

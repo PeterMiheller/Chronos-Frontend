@@ -1,8 +1,9 @@
 import ChronosAuth from "./pages/ChronosAuth.tsx";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import ChronosDashboard from "./pages/ChronosDashboard";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
 import { useState, useEffect } from "react";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
@@ -10,18 +11,32 @@ import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import ChronosSettings from "./pages/ChronosSettings.tsx";
 import Navbar from "./components/Navbar.tsx";
+import { isTokenExpired } from "./utils/auth";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Check for existing token on app load
+  // Check for existing token on app load and validate expiration
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    if (token) {
+    const publicRoutes = ["/auth", "/"];
+    const currentPath = location.pathname;
+
+    if (token && !isTokenExpired()) {
       setIsAuthenticated(true);
+    } else if (token && isTokenExpired()) {
+      // Token exists but is expired - clear it
+      localStorage.clear();
+      setIsAuthenticated(false);
+      if (!publicRoutes.includes(currentPath)) {
+        navigate("/auth");
+      }
+    } else {
+      setIsAuthenticated(false);
     }
-  }, []);
+  }, [location.pathname, navigate]);
 
   // Get user data from localStorage or use defaults
   const userData = {
@@ -82,16 +97,12 @@ function App() {
         <Route
           path="/superadmin"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              {localStorage.getItem("userRole") === "SUPERADMIN" ? (
-                <SuperAdminDashboard />
-              ) : (
-                <div style={{ textAlign: "center", padding: "3rem" }}>
-                  <h2>Access Denied</h2>
-                  <p>You don't have permission to access this page.</p>
-                </div>
-              )}
-            </ProtectedRoute>
+            <RoleSpecificRoute
+              isAuthenticated={isAuthenticated}
+              allowedRoles={["SUPERADMIN"]}
+            >
+              <SuperAdminDashboard />
+            </RoleSpecificRoute>
           }
         />
       </Routes>

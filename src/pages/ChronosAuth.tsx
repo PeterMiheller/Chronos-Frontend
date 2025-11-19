@@ -38,6 +38,9 @@ const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
       }
+      if (response.data.expiresAt) {
+        localStorage.setItem("tokenExpiry", response.data.expiresAt.toString());
+      }
       if (response.data.id) {
         localStorage.setItem("userId", response.data.id.toString());
       }

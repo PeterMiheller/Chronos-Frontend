@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, FileText, Calendar, Bell, Settings, LogOut } from "lucide-react";
+import { logout } from "../utils/auth";
 import "./Navbar.css";
 
 interface NavbarProps {
@@ -21,15 +22,7 @@ const Navbar = ({ userData }: NavbarProps) => {
     isDashboard || isVacationRequests || isCalendar || isProfile || isSettings;
 
   const handleLogout = () => {
-    // Clear all stored data
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userCompanyId");
-    // Navigate to auth page
-    navigate("/auth");
+    logout();
   };
 
   return (
