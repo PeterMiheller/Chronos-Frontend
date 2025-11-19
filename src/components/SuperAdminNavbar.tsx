@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Building2, Plus, Settings, Bell, LogOut } from "lucide-react";
+import { Building2, Plus, Bell, LogOut } from "lucide-react";
 import { logout, isAuthenticated } from "../utils/auth";
 import "./Navbar.css";
 
@@ -55,13 +55,11 @@ const SuperAdminNavbar = () => {
 
         <div className="chronos-navbar-user">
           <Bell size={20} className="chronos-icon" />
-          <Settings
-            size={20}
-            className="chronos-icon"
-            onClick={() => navigate("/superadmin/settings")}
+          <div
+            className="chronos-user-info"
+            onClick={() => navigate("/profile")}
             style={{ cursor: "pointer" }}
-          />
-          <div className="chronos-user-info" style={{ cursor: "pointer" }}>
+          >
             <div className="chronos-user-avatar">
               {userName
                 .split(" ")

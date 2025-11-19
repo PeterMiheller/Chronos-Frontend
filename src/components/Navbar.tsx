@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, FileText, Calendar, Bell, Settings, LogOut } from "lucide-react";
+import { User, FileText, Calendar, Bell, LogOut } from "lucide-react";
 import { logout, isAuthenticated } from "../utils/auth";
 import "./Navbar.css";
 
@@ -72,12 +72,6 @@ const Navbar = ({ userData }: NavbarProps) => {
 
             <div className="chronos-navbar-user">
               <Bell size={20} className="chronos-icon" />
-              <Settings
-                size={20}
-                className="chronos-icon"
-                onClick={() => navigate("/settings")}
-                style={{ cursor: "pointer" }}
-              />
               <div
                 className="chronos-user-info"
                 onClick={() => navigate("/profile")}
