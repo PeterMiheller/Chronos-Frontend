@@ -56,6 +56,19 @@ export const companyService = {
     return response.data;
   },
 
+  // Update a company by SuperAdmin
+  updateCompanyBySuperAdmin: async (
+    id: number,
+    data: {
+      name: string;
+      address: string;
+      adminId?: number;
+    }
+  ): Promise<Company> => {
+    const response = await api.put(`/companies/${id}`, data);
+    return response.data;
+  },
+
   // Delete a company
   deleteCompany: async (id: number): Promise<void> => {
     await api.delete(`/companies/${id}`);
