@@ -1,44 +1,21 @@
 import ChronosAuth from "./pages/ChronosAuth.tsx";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import ChronosDashboard from "./pages/ChronosDashboard";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import CreateCompany from "./pages/CreateCompany";
-import ProtectedRoute from "./components/ProtectedRoute.tsx";
-import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
-import { useState, useEffect } from "react";
+// import ProtectedRoute from "./components/ProtectedRoute.tsx";
+// import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
 import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import Navbar from "./components/Navbar.tsx";
-import { isTokenExpired } from "./utils/auth";
+
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
-  // Check for existing token on app load and validate expiration
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const publicRoutes = ["/auth", "/"];
-    const currentPath = location.pathname;
-
-    if (token && !isTokenExpired()) {
-      setIsAuthenticated(true);
-    } else if (token && isTokenExpired()) {
-      // Token exists but is expired - clear it
-      localStorage.clear();
-      setIsAuthenticated(false);
-      if (!publicRoutes.includes(currentPath)) {
-        navigate("/auth");
-      }
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [location.pathname, navigate]);
-
-  // Get user data from localStorage or use defaults
+  // Get user data from localStorage for navbar display
   const userData = {
     name: localStorage.getItem("userName") ?? "Guest",
     role: localStorage.getItem("userRole") ?? "Employee",
@@ -47,67 +24,66 @@ function App() {
 
   return (
     <div className="App">
-      {location.pathname !== "/auth" && 
-       !location.pathname.startsWith("/superadmin") && 
-       <Navbar userData={userData} />}
+      {/* Show navbar on all pages except login and superadmin routes */}
+      {location.pathname !== "/auth" &&
+        !location.pathname.startsWith("/superadmin") && (
+          <Navbar userData={userData} />
+        )}
+
       <Routes>
-        <Route
-          path="/auth"
-          element={<ChronosAuth setIsAuthenticated={setIsAuthenticated} />}
-        />
+        {/* Public routes */}
+        <Route path="/auth" element={<ChronosAuth />} />
         <Route path="/" element={<ChronosLandingPage />} />
+
+        {/* Protected routes - require valid JWT token */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            
               <ChronosDashboard />
-            </ProtectedRoute>
+           
           }
         />
         <Route
           path="/vacation-requests"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            
               <ChronosVacationRequests />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/calendar"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            
               <ChronosCalendarView />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/profile"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            
               <ChronosProfile />
-            </ProtectedRoute>
+            
           }
         />
+
+        {/* Role-specific routes - require valid JWT + specific role */}
         <Route
           path="/superadmin"
           element={
-            <RoleSpecificRoute
-              isAuthenticated={isAuthenticated}
-              allowedRoles={["SUPERADMIN"]}
-            >
+            
               <SuperAdminDashboard />
-            </RoleSpecificRoute>
+            
           }
         />
         <Route
           path="/superadmin/create-company"
           element={
-            <RoleSpecificRoute
-              isAuthenticated={isAuthenticated}
-              allowedRoles={["SUPERADMIN"]}
-            >
+            
               <CreateCompany />
-            </RoleSpecificRoute>
+            
           }
         />
       </Routes>

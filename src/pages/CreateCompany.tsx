@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import SuperAdminNavbar from "../components/SuperAdminNavbar";
 import { userService } from "../api/userService";
 import type { User } from "../api/userService";
+import { companyService } from "../api/companyService";
 import { X, UserPlus } from "lucide-react";
 import "./CreateCompany.css";
 
@@ -14,7 +16,7 @@ const CreateCompany = () => {
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [formData, setFormData] = useState({
     companyName: "",
-    companyEmail: "",
+    companyAddress: "",
     adminId: "",
   });
   const [adminFormData, setAdminFormData] = useState({
@@ -70,21 +72,20 @@ const CreateCompany = () => {
     setLoading(true);
 
     try {
-      // TODO: API call to create administrator
-      console.log("Creating administrator with data:", adminFormData);
+      await userService.createAdministrator({
+        name: adminFormData.adminName,
+        email: adminFormData.adminEmail,
+        password: adminFormData.adminPassword,
+      });
 
-      // Placeholder - replace with actual API call
-      // const response = await api.post("administrators/create", adminFormData);
-      // const newAdmin = response.data;
-
-      alert("Administrator created successfully!");
+      toast.success("Administrator created successfully!");
       handleCloseAdminModal();
       
       // Refresh the admin list
       await fetchAdmins();
     } catch (err) {
       console.error("Error creating administrator:", err);
-      alert("Failed to create administrator. Please try again.");
+      toast.error("Failed to create administrator. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -96,21 +97,21 @@ const CreateCompany = () => {
     setLoading(true);
 
     try {
-      // TODO: API call to create company
-      console.log("Creating company with data:", formData);
+      await companyService.createCompanyBySuperAdmin({
+        name: formData.companyName,
+        address: formData.companyAddress,
+        adminId: Number(formData.adminId),
+      });
 
-      // Placeholder - replace with actual API call
-      // const response = await api.post("companies/create", formData);
-
-      // Success - redirect back to dashboard
+      toast.success("Company created successfully!");
       navigate("/superadmin");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error creating company:", err);
       const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
+        (err as any).response?.data?.message ||
+        (err as any).response?.data?.error ||
         "Failed to create company. Please try again.";
-      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -151,14 +152,14 @@ const CreateCompany = () => {
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="companyEmail">Company Email</label>
+                  <label htmlFor="companyAddress">Company Address</label>
                   <input
-                    type="email"
-                    id="companyEmail"
-                    name="companyEmail"
-                    value={formData.companyEmail}
+                    type="text"
+                    id="companyAddress"
+                    name="companyAddress"
+                    value={formData.companyAddress}
                     onChange={handleInputChange}
-                    placeholder="company@example.com"
+                    placeholder="123 Main Street, Vienna"
                     required
                   />
                 </div>

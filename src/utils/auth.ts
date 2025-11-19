@@ -1,46 +1,31 @@
-/**
- * Check if the authentication token is expired
- * @returns {boolean} True if token is expired or missing
- */
+
 export function isTokenExpired(): boolean {
   const expiryTimestamp = localStorage.getItem("tokenExpiry");
 
   if (!expiryTimestamp) {
-    return true; // No expiry means no valid token
+    return true; 
   }
 
-  const now = Date.now(); // Current time in milliseconds
-  const expiry = parseInt(expiryTimestamp);
+  const now = Date.now(); 
+  const expiry = parseInt(expiryTimestamp, 10);
 
-  return now >= expiry; // Returns true if current time is past expiry
+  return now >= expiry; 
 }
 
-/**
- * Check if token is expiring soon (within 5 minutes)
- * @returns {boolean} True if token expires in less than 5 minutes
- */
+
 export function isTokenExpiringSoon(): boolean {
   const expiryTimestamp = localStorage.getItem("tokenExpiry");
   if (!expiryTimestamp) return false;
 
   const expiry = parseInt(expiryTimestamp);
   const now = Date.now();
-  const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-  // Returns true if token expires in less than 5 minutes
+  const fiveMinutes = 5 * 60 * 1000; 
   return expiry - now < fiveMinutes && expiry - now > 0;
 }
 
-/**
- * Get authentication headers for API calls
- * Automatically checks token expiration and redirects if expired
- * @returns {HeadersInit} Headers object with Authorization token
- * @throws {Error} If token is expired
- */
+
 export function getAuthHeaders(): HeadersInit {
-  // Check if token is expired
   if (isTokenExpired()) {
-    // Clear all auth data
     logout();
     throw new Error("Token expired");
   }
@@ -53,9 +38,6 @@ export function getAuthHeaders(): HeadersInit {
   };
 }
 
-/**
- * Logout user by clearing all auth data and redirecting to login
- */
 export function logout(): void {
   // Clear all stored auth data
   localStorage.removeItem("authToken");
@@ -66,14 +48,9 @@ export function logout(): void {
   localStorage.removeItem("userRole");
   localStorage.removeItem("userCompanyId");
 
-  // Redirect to login page
   window.location.href = "/auth";
 }
 
-/**
- * Check if user is authenticated with a valid token
- * @returns {boolean} True if user has valid token
- */
 export function isAuthenticated(): boolean {
   const token = localStorage.getItem("authToken");
   return !!token && !isTokenExpired();

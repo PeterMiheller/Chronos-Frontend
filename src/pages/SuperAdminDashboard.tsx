@@ -12,14 +12,11 @@ const SuperAdminDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
 
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const data = await companyService.getAllCompanies();
+      const data = await companyService.getAllCompaniesWithAdmins();
       setCompanies(data);
       setError(null);
     } catch (err) {
@@ -29,6 +26,10 @@ const SuperAdminDashboard = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
 
   const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this company?")) {
@@ -61,7 +62,6 @@ const SuperAdminDashboard = () => {
             </button>
           </div>
 
-
           {loading && <div className="loading">Loading companies...</div>}
 
           {error && <div className="error-message">{error}</div>}
@@ -81,11 +81,9 @@ const SuperAdminDashboard = () => {
                   <tr>
                     <th>ID</th>
                     <th>Company Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
                     <th>Address</th>
-                    <th>Employees</th>
-                    <th>Created</th>
+                    <th>Admin Name</th>
+                    <th>Contact Email</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -97,13 +95,15 @@ const SuperAdminDashboard = () => {
                         <Building2 size={16} />
                         {company.name}
                       </td>
-                      <td>{company.email || "-"}</td>
-                      <td>{company.phone || "-"}</td>
                       <td>{company.address || "-"}</td>
-                      <td>{company.numberOfEmployees || 0}</td>
                       <td>
-                        {company.createdAt
-                          ? new Date(company.createdAt).toLocaleDateString()
+                        {company.admins && company.admins.length > 0
+                          ? company.admins.map((admin) => admin.name).join(", ")
+                          : "-"}
+                      </td>
+                      <td>
+                        {company.admins && company.admins.length > 0
+                          ? company.admins.map((admin) => admin.email).join(", ")
                           : "-"}
                       </td>
                       <td className="actions">
