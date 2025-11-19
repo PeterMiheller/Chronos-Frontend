@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, FileText, Calendar, Bell, Settings, LogOut } from "lucide-react";
-import { logout } from "../utils/auth";
+import { logout, isAuthenticated } from "../utils/auth";
 import "./Navbar.css";
 
 interface NavbarProps {
@@ -21,6 +21,19 @@ const Navbar = ({ userData }: NavbarProps) => {
   const showDashboardNav =
     isDashboard || isVacationRequests || isCalendar || isProfile || isSettings;
 
+  const handleLogoClick = () => {
+    if (isAuthenticated()) {
+      const userRole = localStorage.getItem("userRole");
+      if (userRole === "SUPERADMIN") {
+        navigate("/superadmin");
+      } else {
+        navigate("/dashboard");
+      }
+    } else {
+      navigate("/");
+    }
+  };
+
   const handleLogout = () => {
     logout();
   };
@@ -28,7 +41,7 @@ const Navbar = ({ userData }: NavbarProps) => {
   return (
     <nav className="chronos-navbar">
       <div className="chronos-navbar-inner">
-        <h1 className="chronos-navbar-logo" onClick={() => navigate("/")}>
+        <h1 className="chronos-navbar-logo" onClick={handleLogoClick}>
           Chronos
         </h1>
 

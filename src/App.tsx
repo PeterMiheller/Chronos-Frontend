@@ -2,6 +2,7 @@ import ChronosAuth from "./pages/ChronosAuth.tsx";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import ChronosDashboard from "./pages/ChronosDashboard";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
+import CreateCompany from "./pages/CreateCompany";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
 import { useState, useEffect } from "react";
@@ -47,7 +48,9 @@ function App() {
 
   return (
     <div className="App">
-      {location.pathname !== "/auth" && <Navbar userData={userData} />}
+      {location.pathname !== "/auth" && 
+       !location.pathname.startsWith("/superadmin") && 
+       <Navbar userData={userData} />}
       <Routes>
         <Route
           path="/auth"
@@ -102,6 +105,17 @@ function App() {
               allowedRoles={["SUPERADMIN"]}
             >
               <SuperAdminDashboard />
+            </RoleSpecificRoute>
+          }
+        />
+        <Route
+          path="/superadmin/create-company"
+          element={
+            <RoleSpecificRoute
+              isAuthenticated={isAuthenticated}
+              allowedRoles={["SUPERADMIN"]}
+            >
+              <CreateCompany />
             </RoleSpecificRoute>
           }
         />

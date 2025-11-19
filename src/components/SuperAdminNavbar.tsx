@@ -1,24 +1,29 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Users,
-  Building2,
-  Settings,
-  Bell,
-  LogOut,
-} from "lucide-react";
-import { logout } from "../utils/auth";
+import { Building2, Plus, Settings, Bell, LogOut } from "lucide-react";
+import { logout, isAuthenticated } from "../utils/auth";
 import "./Navbar.css";
 
 const SuperAdminNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isSuperAdminDashboard = location.pathname === "/superadmin";
-  const isUsers = location.pathname === "/superadmin/users";
-  const isCompanies = location.pathname === "/superadmin/companies";
+  const isCreateCompany = location.pathname === "/superadmin/create-company";
 
   // Get user data from localStorage
   const userName = localStorage.getItem("userName") || "SuperAdmin";
+
+  const handleLogoClick = () => {
+    if (isAuthenticated()) {
+      const userRole = localStorage.getItem("userRole");
+      if (userRole === "SUPERADMIN") {
+        navigate("/superadmin");
+      } else {
+        navigate("/dashboard");
+      }
+    } else {
+      navigate("/");
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -27,7 +32,7 @@ const SuperAdminNavbar = () => {
   return (
     <nav className="chronos-navbar">
       <div className="chronos-navbar-inner">
-        <h1 className="chronos-navbar-logo" onClick={() => navigate("/")}>
+        <h1 className="chronos-navbar-logo" onClick={handleLogoClick}>
           Chronos
         </h1>
 
@@ -38,19 +43,13 @@ const SuperAdminNavbar = () => {
               isSuperAdminDashboard ? "active" : ""
             }`}
           >
-            <LayoutDashboard size={18} /> Dashboard
-          </button>
-          <button
-            onClick={() => navigate("/superadmin/users")}
-            className={`chronos-nav-tab ${isUsers ? "active" : ""}`}
-          >
-            <Users size={18} /> Users
-          </button>
-          <button
-            onClick={() => navigate("/superadmin/companies")}
-            className={`chronos-nav-tab ${isCompanies ? "active" : ""}`}
-          >
             <Building2 size={18} /> Companies
+          </button>
+          <button
+            onClick={() => navigate("/superadmin/create-company")}
+            className={`chronos-nav-tab ${isCreateCompany ? "active" : ""}`}
+          >
+            <Plus size={18} /> Create Company
           </button>
         </div>
 
