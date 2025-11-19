@@ -10,7 +10,6 @@ import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
 import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
-import ChronosSettings from "./pages/ChronosSettings.tsx";
 import Navbar from "./components/Navbar.tsx";
 import { isTokenExpired } from "./utils/auth";
 
@@ -86,14 +85,6 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <ChronosProfile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <ChronosSettings />
             </ProtectedRoute>
           }
         />

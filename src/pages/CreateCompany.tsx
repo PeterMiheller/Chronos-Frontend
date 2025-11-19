@@ -1,20 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SuperAdminNavbar from "../components/SuperAdminNavbar";
+import { userService } from "../api/userService";
+import type { User } from "../api/userService";
 import { X, UserPlus } from "lucide-react";
 import "./CreateCompany.css";
-
-interface Admin {
-  id: number;
-  name: string;
-  email: string;
-}
 
 const CreateCompany = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [admins, setAdmins] = useState<User[]>([]);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [formData, setFormData] = useState({
     companyName: "",
@@ -33,15 +29,8 @@ const CreateCompany = () => {
 
   const fetchAdmins = async () => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await api.get("administrators");
-      // setAdmins(response.data);
-
-      // Placeholder data
-      setAdmins([
-        { id: 1, name: "John Doe", email: "john@example.com" },
-        { id: 2, name: "Jane Smith", email: "jane@example.com" },
-      ]);
+      const data = await userService.getAllAdministrators();
+      setAdmins(data);
     } catch (err) {
       console.error("Error fetching admins:", err);
     }
@@ -88,19 +77,12 @@ const CreateCompany = () => {
       // const response = await api.post("administrators/create", adminFormData);
       // const newAdmin = response.data;
 
-      // Simulate new admin creation
-      const newAdmin = {
-        id: admins.length + 1,
-        name: adminFormData.adminName,
-        email: adminFormData.adminEmail,
-      };
-
-      setAdmins([...admins, newAdmin]);
-      setFormData({ ...formData, adminId: String(newAdmin.id) });
-
       alert("Administrator created successfully!");
       handleCloseAdminModal();
-    } catch (err: any) {
+      
+      // Refresh the admin list
+      await fetchAdmins();
+    } catch (err) {
       console.error("Error creating administrator:", err);
       alert("Failed to create administrator. Please try again.");
     } finally {

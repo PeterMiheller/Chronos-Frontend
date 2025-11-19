@@ -32,6 +32,11 @@ export const userService = {
     return response.data;
   },
 
+  getAllAdministrators: async (): Promise<User[]> => {
+    const response = await api.get("users/administrators");
+    return response.data;
+  },
+
   updateUser: async (id: number, data: Partial<User>): Promise<User> => {
     const response = await api.put(`users/${id}`, data);
     return response.data;
