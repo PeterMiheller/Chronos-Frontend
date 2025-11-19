@@ -96,16 +96,8 @@ const SuperAdminDashboard = () => {
                         {company.name}
                       </td>
                       <td>{company.address || "-"}</td>
-                      <td>
-                        {company.admins && company.admins.length > 0
-                          ? company.admins.map((admin) => admin.name).join(", ")
-                          : "-"}
-                      </td>
-                      <td>
-                        {company.admins && company.admins.length > 0
-                          ? company.admins.map((admin) => admin.email).join(", ")
-                          : "-"}
-                      </td>
+                      <td>{company.adminContactName || "-"}</td>
+                      <td>{company.adminContactEmail || "-"}</td>
                       <td className="actions">
                         <button
                           className="action-btn edit-btn"

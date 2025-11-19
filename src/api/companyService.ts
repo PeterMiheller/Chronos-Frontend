@@ -8,11 +8,8 @@ export interface Company {
   phone?: string;
   createdAt?: string;
   numberOfEmployees?: number;
-  admins?: {
-    id: number;
-    name: string;
-    email: string;
-  }[];
+  adminContactName?: string;
+  adminContactEmail?: string;
 }
 
 export const companyService = {

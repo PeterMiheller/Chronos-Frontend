@@ -3,8 +3,8 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import ChronosDashboard from "./pages/ChronosDashboard";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import CreateCompany from "./pages/CreateCompany";
-// import ProtectedRoute from "./components/ProtectedRoute.tsx";
-// import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
 import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
@@ -39,33 +39,33 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            
+            <ProtectedRoute>
               <ChronosDashboard />
-           
+            </ProtectedRoute>
           }
         />
         <Route
           path="/vacation-requests"
           element={
-            
+            <ProtectedRoute>
               <ChronosVacationRequests />
-            
+            </ProtectedRoute>
           }
         />
         <Route
           path="/calendar"
           element={
-            
+            <ProtectedRoute>
               <ChronosCalendarView />
-            
+            </ProtectedRoute>
           }
         />
         <Route
           path="/profile"
           element={
-            
+            <ProtectedRoute>
               <ChronosProfile />
-            
+            </ProtectedRoute>
           }
         />
 
@@ -73,17 +73,17 @@ function App() {
         <Route
           path="/superadmin"
           element={
-            
+            <RoleSpecificRoute allowedRoles={["SUPERADMIN"]}>
               <SuperAdminDashboard />
-            
+            </RoleSpecificRoute>
           }
         />
         <Route
           path="/superadmin/create-company"
           element={
-            
+            <RoleSpecificRoute allowedRoles={["SUPERADMIN"]}>
               <CreateCompany />
-            
+            </RoleSpecificRoute>
           }
         />
       </Routes>

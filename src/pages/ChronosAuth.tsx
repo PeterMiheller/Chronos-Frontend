@@ -25,24 +25,19 @@ const ChronosAuth = () => {
     setLoading(true);
 
     try {
-      // Send login request to backend
       const response = await api.post("auth/login", {
         email: formData.email,
         password: formData.password,
       });
-      console.log("Login successful:", response.data);
 
-      // Store JWT token in localStorage
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
       }
 
-      // Store refresh token if provided
       if (response.data.refreshToken) {
         localStorage.setItem("refreshToken", response.data.refreshToken);
       }
 
-      // Store token expiration timestamp
       if (response.data.expiresAt) {
         localStorage.setItem("tokenExpiry", response.data.expiresAt.toString());
       }
