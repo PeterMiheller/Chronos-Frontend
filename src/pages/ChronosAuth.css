@@ -1,20 +1,20 @@
 .chronos-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(to bottom right, #eff6ff, #eef2ff, #f5f3ff);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, #eff6ff, #eef2ff, #f5f3ff);
 }
 
 .chronos-wrapper {
-    width: 100%;
-    max-width: 420px;
-    padding: 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  padding: 1.5rem;
 }
 
 .chronos-header {
-    text-align: center;
-    margin-bottom: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .chronos-title {
@@ -22,115 +22,129 @@
   font-weight: bold;
   background: linear-gradient(to right, #2563eb, #4f46e5);
   -webkit-background-clip: text;
-  background-clip: text;
   color: transparent;
 }
 
 .chronos-subtitle {
-    color: #4b5563;
-    margin-top: 0.5rem;
+  color: #4b5563;
+  margin-top: 0.5rem;
 }
 
 .chronos-card {
-    background-color: white;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-    padding: 2rem;
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
 }
 
 .chronos-form-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
 }
 
 .chronos-form .chronos-field {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .chronos-field label {
-    display: block;
-    font-size: 0.875rem;
-    color: #374151;
-    margin-bottom: 0.5rem;
+  display: block;
+  font-size: 0.875rem;
+  color: #374151;
+  margin-bottom: 0.5rem;
 }
 
 .chronos-field input,
 .chronos-field select {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #d1d5db;
-    outline: none;
-    transition: 0.2s;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  outline: none;
+  transition: 0.2s;
 }
 
 .chronos-field input:focus,
 .chronos-field select:focus {
-    border-color: transparent;
-    box-shadow: 0 0 0 2px #3b82f6;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px #3b82f6;
 }
 
 .chronos-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 .chronos-remember {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .chronos-forgot {
-    font-size: 0.875rem;
-    color: #2563eb;
-    background: none;
-    border: none;
-    cursor: pointer;
+  font-size: 0.875rem;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .chronos-forgot:hover {
-    color: #1d4ed8;
+  color: #1d4ed8;
 }
 
 .chronos-submit {
-    width: 100%;
-    background: linear-gradient(to right, #2563eb, #4f46e5);
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: 0.2s;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  width: 100%;
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
 }
 
-.chronos-submit:hover {
-    background: linear-gradient(to right, #1d4ed8, #4338ca);
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+.chronos-submit:hover:not(:disabled) {
+  background: linear-gradient(to right, #1d4ed8, #4338ca);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+}
+
+.chronos-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chronos-error {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  border: 1px solid #fecaca;
 }
 
 .chronos-toggle {
-    text-align: center;
-    margin-top: 1.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
 }
 
 .chronos-toggle-btn {
-    color: #2563eb;
-    font-weight: 600;
-    background: none;
-    border: none;
-    cursor: pointer;
+  color: #2563eb;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .chronos-footer {
-    text-align: center;
-    color: #9ca3af;
-    font-size: 0.875rem;
-    margin-top: 1.5rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-top: 1.5rem;
 }

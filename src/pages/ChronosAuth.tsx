@@ -1,241 +1,136 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './ChronosAuth.css';
-import type { ChronosAuthProps } from '../interfaces/ChronosAuthProps';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./ChronosAuth.css";
+import { api } from "../api/config";
+const ChronosAuth = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
+  const navigate = useNavigate();
 
-const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
-    const [isLogin, setIsLogin] = useState(true);
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        confirmPassword: '',
-        firstName: '',
-        lastName: '',
-        companyName: '',
-        role: 'employee'
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    const navigate = useNavigate();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+    try {
+      const response = await api.post("auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
 
+      if (response.data.token) {
+        localStorage.setItem("authToken", response.data.token);
+      }
 
+      if (response.data.refreshToken) {
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+      }
 
-    // const handleSubmit = (e: React.FormEvent) => {
-    //     e.preventDefault();
+      if (response.data.expiresAt) {
+        localStorage.setItem("tokenExpiry", response.data.expiresAt.toString());
+      }
 
-    //     if (isLogin) {
-    //         console.log('Login:', { email: formData.email, password: formData.password });
+      // Store user information
+      if (response.data.id) {
+        localStorage.setItem("userId", response.data.id.toString());
+      }
+      if (response.data.email) {
+        localStorage.setItem("userEmail", response.data.email);
+      }
+      if (response.data.name) {
+        localStorage.setItem("userName", response.data.name);
+      }
+      if (response.data.role) {
+        localStorage.setItem("userRole", response.data.role);
+      }
+      if (response.data.companyId) {
+        localStorage.setItem(
+          "userCompanyId",
+          response.data.companyId.toString()
+        );
+      }
 
-    //         // aici marcăm userul ca logat
-    //         setIsAuthenticated(true);
+      // Navigate based on user role
+      // No need to call setIsAuthenticated - routes check localStorage directly
+      if (response.data.role === "SUPERADMIN") {
+        navigate("/superadmin");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err: unknown) {
+      console.error("Auth error:", err);
+      const errorMessage =
+        (err as any).response?.data?.message ||
+        (err as any).response?.data?.error ||
+        "An error occurred. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    //         // redirecționează către dashboard
-    //         navigate('/dashboard');
-    //     } else {
-    //         console.log('Register:', formData);
-    //         alert('Register functionality - to be implemented');
-    //     }
-    // };
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        try {
-            const res = await fetch("http://localhost:8080/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: formData.email,
-                    password: formData.password
-                }),
-            });
-
-            if (!res.ok) {
-                alert("Invalid email or password.");
-                return;
-            }
-
-            const data = await res.json();
-
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("userId", data.id);
-            localStorage.setItem("role", data.role);
-            localStorage.setItem("administratorId",data.administratorId);
-
-            setIsAuthenticated(true);
-            navigate("/dashboard");
-
-
-        } catch (error) {
-            console.error("Login error:", error);
-            alert("An unexpected error occurred. Please try again.");
-        }
-    };
-
-
-
-    const toggleForm = () => {
-        setIsLogin(!isLogin);
-        setFormData({
-            email: '',
-            password: '',
-            confirmPassword: '',
-            firstName: '',
-            lastName: '',
-            companyName: '',
-            role: 'employee'
-        });
-    };
-
-    return (
-        <div className="chronos-container">
-            <div className="chronos-wrapper">
-                <div className="chronos-header">
-                    <h1 className="chronos-title">Chronos</h1>
-                    <p className="chronos-subtitle">
-                        {isLogin ? 'Welcome back' : 'Create your account'}
-                    </p>
-                </div>
-
-                <div className="chronos-card">
-                    <h2 className="chronos-form-title">
-                        {isLogin ? 'Login' : 'Register'}
-                    </h2>
-
-                    <form className="chronos-form" onSubmit={handleSubmit}>
-                        {!isLogin && (
-                            <>
-                                <div className="chronos-row">
-                                    <div className="chronos-field">
-                                        <label htmlFor="firstName">First Name</label>
-                                        <input
-                                            type="text"
-                                            id="firstName"
-                                            name="firstName"
-                                            value={formData.firstName}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                    <div className="chronos-field">
-                                        <label htmlFor="lastName">Last Name</label>
-                                        <input
-                                            type="text"
-                                            id="lastName"
-                                            name="lastName"
-                                            value={formData.lastName}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="chronos-field">
-                                    <label htmlFor="companyName">Company Name</label>
-                                    <input
-                                        type="text"
-                                        id="companyName"
-                                        name="companyName"
-                                        value={formData.companyName}
-                                        onChange={handleInputChange}
-                                    />
-                                </div>
-
-                                <div className="chronos-field">
-                                    <label htmlFor="role">Role</label>
-                                    <select
-                                        id="role"
-                                        name="role"
-                                        value={formData.role}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="employee">Employee</option>
-                                        <option value="admin">Administrator</option>
-                                        <option value="superadmin">Super Admin</option>
-                                    </select>
-                                </div>
-                            </>
-                        )}
-
-                        <div className="chronos-field">
-                            <label htmlFor="email">Email Address</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                placeholder="you@example.com"
-                            />
-                        </div>
-
-                        <div className="chronos-field">
-                            <label htmlFor="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        {!isLogin && (
-                            <div className="chronos-field">
-                                <label htmlFor="confirmPassword">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    value={formData.confirmPassword}
-                                    onChange={handleInputChange}
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                        )}
-
-                        {isLogin && (
-                            <div className="chronos-remember">
-                                <label className="chronos-checkbox">
-                                    <input type="checkbox" />
-                                    <span>Remember me</span>
-                                </label>
-                                <button
-                                    type="button"
-                                    onClick={() => alert('Forgot password - to be implemented')}
-                                    className="chronos-forgot"
-                                >
-                                    Forgot password?
-                                </button>
-                            </div>
-                        )}
-
-                        <button type="submit" className="chronos-submit">
-                            {isLogin ? 'Login' : 'Create Account'}
-                        </button>
-                    </form>
-
-                    <div className="chronos-toggle">
-                        <p>
-                            {isLogin ? "Don't have an account? " : "Already have an account? "}
-                            <button onClick={toggleForm} className="chronos-toggle-btn">
-                                {isLogin ? 'Register' : 'Login'}
-                            </button>
-                        </p>
-                    </div>
-                </div>
-
-                <p className="chronos-footer">
-                    © 2024 Chronos. All rights reserved.
-                </p>
-            </div>
+  return (
+    <div className="chronos-container">
+      <div className="chronos-wrapper">
+        <div className="chronos-header">
+          <h1 className="chronos-title">Chronos</h1>
+          <p className="chronos-subtitle">Welcome back</p>
         </div>
-    );
+
+        <div className="chronos-card">
+          <h2 className="chronos-form-title">Login</h2>
+
+          {error && <div className="chronos-error">{error}</div>}
+
+          <form className="chronos-form" onSubmit={handleSubmit}>
+            <div className="chronos-field">
+              <label htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+
+            <div className="chronos-field">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <button type="submit" className="chronos-submit" disabled={loading}>
+              {loading ? "Please wait..." : "Login"}
+            </button>
+          </form>
+        </div>
+
+        <p className="chronos-footer">© 2024 Chronos. All rights reserved.</p>
+      </div>
+    </div>
+  );
 };
 
 export default ChronosAuth;
