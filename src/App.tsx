@@ -69,6 +69,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route
+              path="/employee-requests"
+              element={
+                  <RoleSpecificRoute allowedRoles={["ADMINISTRATOR"]}>
+                      <ChronosEmployeeRequests />
+                  </RoleSpecificRoute>
+              }
+          />
+
 
         {/* Role-specific routes - require valid JWT + specific role */}
         <Route
@@ -87,15 +96,8 @@ function App() {
             </RoleSpecificRoute>
           }
         />
-          <Route
-              path="/admin/employee-requests"
-              element={
-                  <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <ChronosEmployeeRequests />
-                  </ProtectedRoute>
-              }
-          />
       </Routes>
+
     </div>
   );
 }

@@ -11,6 +11,7 @@ export interface VacationRequest {
   pdfPath: string | null;
 }
 
+
 export const vacationService = {
   getVacationRequestsByEmployee: async (employeeId: number): Promise<VacationRequest[]> => {
     const response = await api.get(`vacation-requests/employee/${employeeId}`);
