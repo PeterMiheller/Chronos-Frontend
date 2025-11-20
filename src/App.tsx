@@ -1,48 +1,46 @@
 import ChronosAuth from "./pages/ChronosAuth.tsx";
 import { Routes, Route, useLocation } from "react-router-dom";
 import ChronosDashboard from "./pages/ChronosDashboard";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
+import CreateCompany from "./pages/CreateCompany";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
-import { useState, useEffect } from "react";
+import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
 import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
-import ChronosSettings from "./pages/ChronosSettings.tsx";
 import Navbar from "./components/Navbar.tsx";
 import ChronosEmployeeRequests from "./pages/ChronosEmployeeRequests.tsx";
 
+
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
 
-  // Check for existing token on app load
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  // Get user data from localStorage or use defaults
+  // Get user data from localStorage for navbar display
   const userData = {
-    name: localStorage.getItem("userName") || "John Doe",
-    role: localStorage.getItem("userRole") || "Employee",
+    name: localStorage.getItem("userName") ?? "Guest",
+    role: localStorage.getItem("userRole") ?? "Employee",
     company: "Tech Solutions GmbH",
   };
 
   return (
     <div className="App">
-      {location.pathname !== "/auth" && <Navbar userData={userData} />}
+      {/* Show navbar on all pages except login and superadmin routes */}
+      {location.pathname !== "/auth" &&
+        !location.pathname.startsWith("/superadmin") && (
+          <Navbar userData={userData} />
+        )}
+
       <Routes>
-        <Route
-          path="/auth"
-          element={<ChronosAuth setIsAuthenticated={setIsAuthenticated} />}
-        />
+        {/* Public routes */}
+        <Route path="/auth" element={<ChronosAuth />} />
         <Route path="/" element={<ChronosLandingPage />} />
+
+        {/* Protected routes - require valid JWT token */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute>
               <ChronosDashboard />
             </ProtectedRoute>
           }
@@ -50,7 +48,7 @@ function App() {
         <Route
           path="/vacation-requests"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute>
               <ChronosVacationRequests />
             </ProtectedRoute>
           }
@@ -58,7 +56,7 @@ function App() {
         <Route
           path="/calendar"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute>
               <ChronosCalendarView />
             </ProtectedRoute>
           }
@@ -66,17 +64,27 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute>
               <ChronosProfile />
             </ProtectedRoute>
           }
         />
+
+        {/* Role-specific routes - require valid JWT + specific role */}
         <Route
-          path="/settings"
+          path="/superadmin"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <ChronosSettings />
-            </ProtectedRoute>
+            <RoleSpecificRoute allowedRoles={["SUPERADMIN"]}>
+              <SuperAdminDashboard />
+            </RoleSpecificRoute>
+          }
+        />
+        <Route
+          path="/superadmin/create-company"
+          element={
+            <RoleSpecificRoute allowedRoles={["SUPERADMIN"]}>
+              <CreateCompany />
+            </RoleSpecificRoute>
           }
         />
           <Route

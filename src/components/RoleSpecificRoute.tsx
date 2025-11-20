@@ -3,23 +3,30 @@ import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
 import { isTokenExpired } from "../utils/auth";
 
-interface ProtectedRouteProps {
+interface RoleSpecificRouteProps {
+  allowedRoles: string[];
   children: ReactNode;
+  fallback?: ReactNode;
 }
 
-function ProtectedRoute({ children }: ProtectedRouteProps) {
+function RoleSpecificRoute({
+  allowedRoles,
+  children,
+  fallback,
+}: RoleSpecificRouteProps) {
   const [checkedToken, setCheckedToken] = useState(false);
   const [isValidToken, setIsValidToken] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    // Read token from localStorage
     const token = localStorage.getItem("authToken");
 
-    // Check if token exists and is not expired
     if (token && !isTokenExpired()) {
       setIsValidToken(true);
+      const role = localStorage.getItem("userRole");
+      setUserRole(role);
     } else {
-      // Clear any expired or invalid auth data
+      // Clear all auth data if token is missing or expired
       localStorage.removeItem("authToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("tokenExpiry");
@@ -29,9 +36,9 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
       localStorage.removeItem("userRole");
       localStorage.removeItem("userCompanyId");
       setIsValidToken(false);
+      setUserRole(null);
     }
 
-    // Mark that token check is done
     setCheckedToken(true);
   }, []);
 
@@ -43,8 +50,22 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Token is valid, render children
+  // Check role
+  if (!userRole || !allowedRoles.includes(userRole)) {
+    return (
+      <>
+        {fallback || (
+          <div style={{ textAlign: "center", padding: "3rem" }}>
+            <h2>Access Denied</h2>
+            <p>You don't have permission to access this page.</p>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // Token is valid and role is allowed
   return <>{children}</>;
 }
 
-export default ProtectedRoute;
+export default RoleSpecificRoute;
