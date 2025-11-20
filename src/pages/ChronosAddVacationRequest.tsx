@@ -9,7 +9,7 @@ const ChronosAddVacationRequest = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [days, setDays] = useState(0);
-
+  
   const today = new Date().toISOString().split("T")[0];
 
   const calculateWorkingDays = (start: string, end: string) => {
@@ -32,6 +32,7 @@ const ChronosAddVacationRequest = () => {
     return count;
   };
 
+  
   useEffect(() => {
     setDays(calculateWorkingDays(startDate, endDate));
   }, [startDate, endDate]);
@@ -40,9 +41,10 @@ const ChronosAddVacationRequest = () => {
     e.preventDefault();
 
     if (days < 1) {
-    alert("Vacation request must contain at least 1 working day.");
-    return;
-  }
+      alert("Vacation request must contain at least 1 working day.");
+      return;
+    }
+    
     const token = localStorage.getItem("token");
     const employeeId = Number(localStorage.getItem("userId"));
     const administratorId = Number(localStorage.getItem("administratorId"));
@@ -76,9 +78,16 @@ const ChronosAddVacationRequest = () => {
       );
 
       navigate("/vacation-requests");
+      window.location.reload();
+
     } catch (error: any) {
       console.error("Error creating vacation request:", error);
-      alert("Error, try again");
+
+      if (error.response && error.response.data && typeof error.response.data === "string") {
+        alert(error.response.data);
+      } else {
+        alert("Unexpected error. Please try again.");
+      }
     }
   };
 
@@ -101,7 +110,7 @@ const ChronosAddVacationRequest = () => {
           <input
             type="date"
             min={startDate || today}
-            value={endDate }
+            value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
 

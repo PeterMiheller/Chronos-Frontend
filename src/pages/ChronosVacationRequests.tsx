@@ -14,8 +14,8 @@ interface VacationRequest {
 const ChronosVacationRequests = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [vacationRequests, setVacationRequests] = useState<VacationRequest[]>([]);
+  const [filter, setFilter] = useState<string>("all");
 
   const calculateWorkingDays = (start: string, end: string) => {
     const s = new Date(start);
@@ -34,43 +34,58 @@ const ChronosVacationRequests = () => {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
-    const administratorId = localStorage.getItem("administratorId");
 
-    console.log("VacationRequests userId=", userId, "token=", !!token);
-
-    if (!userId || !token) {
-        console.warn("No userId or token found, skipping request.");
-        return;
-    }
+    if (!userId || !token) return;
 
     axios
-        .get(`http://localhost:8080/api/vacation-requests/employee/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => setVacationRequests(res.data))
-        .catch((err) => console.error("Error loading vacation requests:", err));
-}, []);
+      .get(`http://localhost:8080/api/vacation-requests/employee/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setVacationRequests(res.data))
+      .catch((err) => console.error("Error loading vacation requests:", err));
+  }, []);
 
+  // FILTRARE
+  const filteredRequests = vacationRequests.filter((req) => {
+    if (filter === "all") return true;
+    return req.status.toLowerCase() === filter;
+  });
 
   return (
     <div className="vacation-requests-page">
       <main className="vacation-main-content">
         <section className="requests-section">
+
+          {/* HEADER + CONTROL ROW */}
           <div className="requests-header">
             <h2>Vacation Requests</h2>
 
-            <button
-              className="new-request"
-              onClick={() =>
-                navigate("/vacation-requests/new", {
-                  state: { backgroundLocation: location },
-                })
-              }
-            >
-              + New Request
-            </button>
+            <div className="top-controls">
+              <select
+                className="filter-select"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+
+              <button
+                className="new-request"
+                onClick={() =>
+                  navigate("/vacation-requests/new", {
+                    state: { backgroundLocation: location },
+                  })
+                }
+              >
+                + New Request
+              </button>
+            </div>
           </div>
 
+          {/* TABLE */}
           <table className="requests-table">
             <thead>
               <tr>
@@ -83,7 +98,7 @@ const ChronosVacationRequests = () => {
             </thead>
 
             <tbody>
-              {vacationRequests.map((req) => (
+              {filteredRequests.map((req) => (
                 <tr key={req.id}>
                   <td>{req.startDate}</td>
                   <td>{req.endDate}</td>
@@ -100,6 +115,7 @@ const ChronosVacationRequests = () => {
               ))}
             </tbody>
           </table>
+
         </section>
       </main>
     </div>
