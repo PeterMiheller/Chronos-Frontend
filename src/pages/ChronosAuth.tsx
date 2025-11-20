@@ -27,22 +27,58 @@ const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
 
 
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // const handleSubmit = (e: React.FormEvent) => {
+    //     e.preventDefault();
+
+    //     if (isLogin) {
+    //         console.log('Login:', { email: formData.email, password: formData.password });
+
+    //         // aici marcăm userul ca logat
+    //         setIsAuthenticated(true);
+
+    //         // redirecționează către dashboard
+    //         navigate('/dashboard');
+    //     } else {
+    //         console.log('Register:', formData);
+    //         alert('Register functionality - to be implemented');
+    //     }
+    // };
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (isLogin) {
-            console.log('Login:', { email: formData.email, password: formData.password });
+        try {
+            const res = await fetch("http://localhost:8080/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password
+                }),
+            });
 
-            // aici marcăm userul ca logat
+            if (!res.ok) {
+                alert("Invalid email or password.");
+                return;
+            }
+
+            const data = await res.json();
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("userId", data.id);
+            localStorage.setItem("role", data.role);
+            localStorage.setItem("administratorId",data.administratorId);
+
             setIsAuthenticated(true);
+            navigate("/dashboard");
 
-            // redirecționează către dashboard
-            navigate('/dashboard');
-        } else {
-            console.log('Register:', formData);
-            alert('Register functionality - to be implemented');
+
+        } catch (error) {
+            console.error("Login error:", error);
+            alert("An unexpected error occurred. Please try again.");
         }
     };
+
+
 
     const toggleForm = () => {
         setIsLogin(!isLogin);

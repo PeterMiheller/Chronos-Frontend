@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./ChronosAddVacationRequest.css";
 
 const ChronosAddVacationRequest = () => {
@@ -9,21 +10,76 @@ const ChronosAddVacationRequest = () => {
   const [endDate, setEndDate] = useState("");
   const [days, setDays] = useState(0);
 
-  const calculateDays = (start: string, end: string) => {
+  const today = new Date().toISOString().split("T")[0];
+
+  const calculateWorkingDays = (start: string, end: string) => {
     if (!start || !end) return 0;
+
     const s = new Date(start);
     const e = new Date(end);
-    const diff = e.getTime() - s.getTime();
-    return diff >= 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1 : 0;
+
+    if (s > e) return 0;
+
+    let count = 0;
+    let current = new Date(s);
+
+    while (current <= e) {
+      const day = current.getDay();
+      if (day !== 0 && day !== 6) count++;
+      current.setDate(current.getDate() + 1);
+    }
+
+    return count;
   };
 
   useEffect(() => {
-    setDays(calculateDays(startDate, endDate));
+    setDays(calculateWorkingDays(startDate, endDate));
   }, [startDate, endDate]);
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    navigate("/vacation-requests");
+
+    if (days < 1) {
+    alert("Vacation request must contain at least 1 working day.");
+    return;
+  }
+    const token = localStorage.getItem("token");
+    const employeeId = Number(localStorage.getItem("userId"));
+    const administratorId = Number(localStorage.getItem("administratorId"));
+
+    if (!token) {
+      alert("You are not logged in.");
+      return;
+    }
+
+    if (!employeeId || !administratorId) {
+      console.error("Missing userId or administratorId in localStorage.");
+      alert("Error: invalid account configuration.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/vacation-requests",
+        {
+          employeeId,
+          administratorId,
+          startDate,
+          endDate,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      navigate("/vacation-requests");
+    } catch (error: any) {
+      console.error("Error creating vacation request:", error);
+      alert("Error, try again");
+    }
   };
 
   return (
@@ -35,18 +91,21 @@ const ChronosAddVacationRequest = () => {
           <label>Start Date:</label>
           <input
             type="date"
+            min={today}
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => setStartDate(e.target.value)
+            }
           />
 
           <label>End Date:</label>
           <input
             type="date"
-            value={endDate}
+            min={startDate || today}
+            value={endDate }
             onChange={(e) => setEndDate(e.target.value)}
           />
 
-          <div className="days-preview">Days: {days}</div>
+          <div className="days-preview">Working days: {days}</div>
 
           <div className="button-row">
             <button
