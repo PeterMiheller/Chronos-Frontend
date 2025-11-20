@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, FileText, Calendar, Bell, Settings, LogOut } from "lucide-react";
+import { User, FileText, Calendar, Bell, LogOut } from "lucide-react";
+import { logout, isAuthenticated } from "../utils/auth";
 import "./Navbar.css";
 
 interface NavbarProps {
@@ -20,22 +21,27 @@ const Navbar = ({ userData }: NavbarProps) => {
   const showDashboardNav =
     isDashboard || isVacationRequests || isCalendar || isProfile || isSettings;
 
+  const handleLogoClick = () => {
+    if (isAuthenticated()) {
+      const userRole = localStorage.getItem("userRole");
+      if (userRole === "SUPERADMIN") {
+        navigate("/superadmin");
+      } else {
+        navigate("/dashboard");
+      }
+    } else {
+      navigate("/");
+    }
+  };
+
   const handleLogout = () => {
-    // Clear all stored data
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userCompanyId");
-    // Navigate to auth page
-    navigate("/auth");
+    logout();
   };
 
   return (
     <nav className="chronos-navbar">
       <div className="chronos-navbar-inner">
-        <h1 className="chronos-navbar-logo" onClick={() => navigate("/")}>
+        <h1 className="chronos-navbar-logo" onClick={handleLogoClick}>
           Chronos
         </h1>
 
@@ -66,12 +72,6 @@ const Navbar = ({ userData }: NavbarProps) => {
 
             <div className="chronos-navbar-user">
               <Bell size={20} className="chronos-icon" />
-              <Settings
-                size={20}
-                className="chronos-icon"
-                onClick={() => navigate("/settings")}
-                style={{ cursor: "pointer" }}
-              />
               <div
                 className="chronos-user-info"
                 onClick={() => navigate("/profile")}

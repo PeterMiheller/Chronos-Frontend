@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ChronosAuth.css";
-import type { ChronosAuthProps } from "../interfaces/ChronosAuthProps";
 import { api } from "../api/config";
-
-const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
+const ChronosAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -27,17 +25,24 @@ const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
     setLoading(true);
 
     try {
-      // Login request
       const response = await api.post("auth/login", {
         email: formData.email,
         password: formData.password,
       });
-      console.log("Login successful:", response.data);
 
-      // Store token and user data from backend response
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
       }
+
+      if (response.data.refreshToken) {
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+      }
+
+      if (response.data.expiresAt) {
+        localStorage.setItem("tokenExpiry", response.data.expiresAt.toString());
+      }
+
+      // Store user information
       if (response.data.id) {
         localStorage.setItem("userId", response.data.id.toString());
       }
@@ -57,20 +62,18 @@ const ChronosAuth = ({ setIsAuthenticated }: ChronosAuthProps) => {
         );
       }
 
-      // Mark user as authenticated
-      setIsAuthenticated(true);
-
+      // Navigate based on user role
+      // No need to call setIsAuthenticated - routes check localStorage directly
       if (response.data.role === "SUPERADMIN") {
         navigate("/superadmin");
-        return;
       } else {
         navigate("/dashboard");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Auth error:", err);
       const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
+        (err as any).response?.data?.message ||
+        (err as any).response?.data?.error ||
         "An error occurred. Please try again.";
       setError(errorMessage);
     } finally {
