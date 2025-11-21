@@ -1,0 +1,191 @@
+.vacation-requests-page {
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #eff6ff, #eef2ff, #f5f3ff);
+    padding: 2rem;
+}
+
+.vacation-main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.requests-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.requests-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.requests-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.new-request {
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(to right, #2563eb, #4f46e5);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.new-request:hover {
+    background: linear-gradient(to right, #1d4ed8, #4338ca);
+}
+
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.requests-table th,
+.requests-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.requests-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.requests-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.status-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.view-btn {
+    padding: 0.5rem 1rem;
+    background: white;
+    color: #2563eb;
+    border: 1px solid #2563eb;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-btn:hover {
+    background: #2563eb;
+    color: white;
+}
+
+/* Action Buttons - Base Style */
+.admin-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 0.5rem;
+}
+
+/* Approve Button - Green with gradient */
+.admin-approve-btn {
+    background: linear-gradient(to right, #10b981, #059669);
+    color: white;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.admin-approve-btn:hover {
+    background: linear-gradient(to right, #059669, #047857);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
+.admin-approve-btn:active {
+    transform: translateY(0);
+}
+
+/* Reject Button - Red with gradient */
+.admin-reject-btn {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.admin-reject-btn:hover {
+    background: linear-gradient(to right, #dc2626, #b91c1c);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
+}
+
+.admin-reject-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .vacation-requests-page {
+        padding: 1rem;
+    }
+
+    .requests-section {
+        padding: 1rem;
+        overflow-x: auto;
+    }
+
+    .requests-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .requests-table {
+        font-size: 0.875rem;
+    }
+
+    .requests-table th,
+    .requests-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .admin-action-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8125rem;
+        margin-right: 0.25rem;
+    }
+}
