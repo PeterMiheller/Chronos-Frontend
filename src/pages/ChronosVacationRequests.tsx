@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { vacationService, type VacationRequest as ServiceVacationRequest } from "../api/vacationService";
 
 
-
 const ChronosVacationRequests = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -85,6 +84,7 @@ const ChronosVacationRequests = () => {
                 <th>Days</th>
                 <th>Status</th>
                 <th>Approved By</th>
+          
               </tr>
             </thead>
 

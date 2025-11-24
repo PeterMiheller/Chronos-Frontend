@@ -54,8 +54,8 @@ const ChronosAddVacationRequest = () => {
       return;
     }
 
-    if (!employeeId || !administratorId) {
-      console.error("Missing userId or administratorId in localStorage.");
+    if (!employeeId ) {
+      console.error("Missing userId in localStorage.");
       alert("Error: invalid account configuration.");
       return;
     }

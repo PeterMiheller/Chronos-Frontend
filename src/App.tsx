@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import RoleSpecificRoute from "./components/RoleSpecificRoute.tsx";
 import ChronosLandingPage from "./pages/ChronosLandingPage.tsx";
 import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
+import ChronosAddVacationRequest from "./pages/ChronosAddVacationRequest.tsx";
 import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import Navbar from "./components/Navbar.tsx";
@@ -51,6 +52,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ChronosVacationRequests />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vacation-requests/new"
+          element={
+            <ProtectedRoute>
+              <ChronosAddVacationRequest />
             </ProtectedRoute>
           }
         />
