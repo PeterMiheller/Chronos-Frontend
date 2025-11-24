@@ -34,6 +34,8 @@ interface TimesheetToday {
 }
 
 const ChronosDashboard = () => {
+
+
   const [currentTime, setCurrentTime] = useState(new Date());
   const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
   const [todayTimesheet, setTodayTimesheet] = useState<TimesheetToday | null>(null);
@@ -42,6 +44,8 @@ const ChronosDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [clockingIn, setClockingin] = useState(false);
   const [clockingOut, setClockinOut] = useState(false);
+
+
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

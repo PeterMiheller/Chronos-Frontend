@@ -1,7 +1,8 @@
+import { api } from "../api/config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ChronosAuth.css";
-import { api } from "../api/config";
+
 const ChronosAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,11 +25,14 @@ const ChronosAuth = () => {
     setError("");
     setLoading(true);
 
+
     try {
+      
       const response = await api.post("auth/login", {
         email: formData.email,
         password: formData.password,
       });
+      
 
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
@@ -61,13 +65,16 @@ const ChronosAuth = () => {
           response.data.companyId.toString()
         );
       }
+      
 
       // Navigate based on user role
       // No need to call setIsAuthenticated - routes check localStorage directly
       if (response.data.role === "SUPERADMIN") {
         navigate("/superadmin");
       } else {
+        
         navigate("/dashboard");
+    
       }
     } catch (err: unknown) {
       console.error("Auth error:", err);

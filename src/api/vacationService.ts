@@ -19,6 +19,12 @@ export const vacationService = {
     return response.data;
   },
 
+  // Fetch requests for employees that belong to an administrator (adminId)
+  getVacationRequestsByAdmin: async (adminId: number): Promise<VacationRequest[]> => {
+    const response = await api.get(`vacation-requests/employee/adminId/${adminId}`);
+    return response.data;
+  },
+
   createVacationRequest: async (data: Partial<VacationRequest>): Promise<VacationRequest> => {
     const response = await api.post("vacation-requests", data);
     return response.data;

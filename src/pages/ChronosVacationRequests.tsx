@@ -1,62 +1,81 @@
+import { useState, useEffect } from "react";
 import "./ChronosVacationRequests.css";
+import { useNavigate, useLocation } from "react-router-dom";
+import { vacationService, type VacationRequest as ServiceVacationRequest } from "../api/vacationService";
+
 
 const ChronosVacationRequests = () => {
-  const vacationRequests = [
-    {
-      id: 1,
-      startDate: "2024-12-20",
-      endDate: "2024-12-27",
-      days: 6,
-      status: "Approved",
-      approvedBy: "Sarah Miller",
-    },
-    {
-      id: 2,
-      startDate: "2024-11-15",
-      endDate: "2024-11-18",
-      days: 2,
-      status: "Pending",
-      approvedBy: "-",
-    },
-    {
-      id: 3,
-      startDate: "2024-10-10",
-      endDate: "2024-10-12",
-      days: 3,
-      status: "Approved",
-      approvedBy: "Sarah Miller",
-    },
-    {
-      id: 4,
-      startDate: "2024-08-05",
-      endDate: "2024-08-16",
-      days: 10,
-      status: "Rejected",
-      approvedBy: "Sarah Miller",
-    },
-  ];
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [vacationRequests, setVacationRequests] = useState<ServiceVacationRequest[]>([]);
+  const [filter, setFilter] = useState<string>("all");
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Approved":
-        return "status-approved";
-      case "Pending":
-        return "status-pending";
-      case "Rejected":
-        return "status-rejected";
-      default:
-        return "status-default";
+  const calculateWorkingDays = (start: string, end: string) => {
+    const s = new Date(start);
+    const e = new Date(end);
+    let count = 0;
+
+    while (s <= e) {
+      const day = s.getDay();
+      if (day !== 0 && day !== 6) count++;
+      s.setDate(s.getDate() + 1);
     }
+
+    return count;
   };
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) return;
+
+    // Use centralized API service which handles base URL and auth
+    vacationService
+      .getVacationRequestsByEmployee(Number(userId))
+      .then((res) => setVacationRequests(res))
+      .catch((err) => console.error("Error loading vacation requests:", err));
+  }, []);
+
+ 
+  const filteredRequests = vacationRequests.filter((req) => {
+    if (filter === "all") return true;
+    return req.status.toLowerCase() === filter;
+  });
 
   return (
     <div className="vacation-requests-page">
       <main className="vacation-main-content">
         <section className="requests-section">
+
           <div className="requests-header">
             <h2>Vacation Requests</h2>
-            <button className="new-request">+ New Request</button>
+
+            <div className="top-controls">
+              <select
+                className="filter-select"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+
+              <button
+                className="new-request"
+                onClick={() =>
+                  navigate("/vacation-requests/new", {
+                    state: { backgroundLocation: location },
+                  })
+                }
+              >
+                + New Request
+              </button>
+            </div>
           </div>
+
+          {/* TABLE */}
           <table className="requests-table">
             <thead>
               <tr>
@@ -65,30 +84,29 @@ const ChronosVacationRequests = () => {
                 <th>Days</th>
                 <th>Status</th>
                 <th>Approved By</th>
-                <th>Actions</th>
+          
               </tr>
             </thead>
+
             <tbody>
-              {vacationRequests.map((req) => (
+              {filteredRequests.map((req) => (
                 <tr key={req.id}>
                   <td>{req.startDate}</td>
                   <td>{req.endDate}</td>
-                  <td>{req.days}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${getStatusColor(req.status)}`}
-                    >
-                      {req.status}
-                    </span>
+                  <td>{calculateWorkingDays(req.startDate, req.endDate)}</td>
+                  <td className={`status ${req.status.toLowerCase()}`}>
+                    {req.status}
                   </td>
-                  <td>{req.approvedBy}</td>
                   <td>
-                    <button className="view-btn">View PDF</button>
+                    {req.status === "APPROVED"
+                      ? `Admin #${req.administratorId}`
+                      : "—"}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
         </section>
       </main>
     </div>
