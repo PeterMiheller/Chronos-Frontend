@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, FileText, Calendar, Bell, LogOut } from "lucide-react";
+import {User, FileText, Calendar, Bell, LogOut, Briefcase} from "lucide-react";
 import { logout, isAuthenticated } from "../utils/auth";
 import "./Navbar.css";
 
@@ -12,14 +12,17 @@ interface NavbarProps {
 const Navbar = ({ userData }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const userRole = localStorage.getItem("userRole");
+  const isAdmin = userRole === "ADMINISTRATOR" ;
   const isDashboard = location.pathname === "/dashboard";
   const isVacationRequests = location.pathname === "/vacation-requests";
   const isCalendar = location.pathname === "/calendar";
   const isProfile = location.pathname === "/profile";
+  const isEmployeeRequests = location.pathname === "/employee-requests";
   const isSettings = location.pathname === "/settings";
   const isLanding = location.pathname === "/";
   const showDashboardNav =
-    isDashboard || isVacationRequests || isCalendar || isProfile || isSettings;
+    isDashboard || isVacationRequests || isCalendar || isProfile || isSettings || isEmployeeRequests;
 
   const handleLogoClick = () => {
     if (isAuthenticated()) {
@@ -68,6 +71,16 @@ const Navbar = ({ userData }: NavbarProps) => {
               >
                 <Calendar size={18} /> Work Calendar
               </button>
+              {isAdmin && (
+                  <button
+                      onClick={() => navigate("/employee-requests")}
+                      className={`chronos-nav-tab ${
+                          isEmployeeRequests ? "active" : ""
+                      }`}
+                  >
+                    <Briefcase size={18} /> Employee Requests
+                  </button>
+              )}
             </div>
 
             <div className="chronos-navbar-user">
