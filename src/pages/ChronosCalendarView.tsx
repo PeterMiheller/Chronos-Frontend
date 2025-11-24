@@ -273,7 +273,7 @@ const ChronosCalendarView = () => {
           <span className="day-number">{day}</span>
           {dayHours != null && (
             <div className="hours-badge" onClick={(e) => e.stopPropagation()}>
-              <span className="hours-badge-value">{dayHours}h</span>
+              <span className="hours-badge-value">{(dayHours).toFixed(1)}h</span>
               <button
                 className="hours-badge-clear"
                 title="Clear hours"

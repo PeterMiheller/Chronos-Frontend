@@ -10,9 +10,7 @@ import ChronosVacationRequests from "./pages/ChronosVacationRequests.tsx";
 import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import Navbar from "./components/Navbar.tsx";
-import ChronosAddVacationRequest from "./pages/ChronosAddVacationRequest.tsx";
-import "react-toastify/dist/ReactToastify.css";
-
+import ChronosEmployeeRequests from "./pages/ChronosEmployeeRequests.tsx";
 
 
 function App() {
@@ -72,14 +70,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/vacation-requests/new"
-          element={
-            <ProtectedRoute>
-              <ChronosAddVacationRequest />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+              path="/employee-requests"
+              element={
+                  <RoleSpecificRoute allowedRoles={["ADMINISTRATOR"]}>
+                      <ChronosEmployeeRequests />
+                  </RoleSpecificRoute>
+              }
+          />
 
 
         {/* Role-specific routes - require valid JWT + specific role */}

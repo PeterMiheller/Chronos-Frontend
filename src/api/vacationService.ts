@@ -1,5 +1,6 @@
 import { api } from "./config";
 
+
 export interface VacationRequest {
   id: number;
   employeeId: number;
@@ -9,6 +10,8 @@ export interface VacationRequest {
   status: "CREATED" | "SUBMITTED" | "APPROVED" | "REJECTED" | "REVISED" | "RESUBMITTED" | "CANCELLED" | "EXPIRED";
   pdfPath: string | null;
 }
+
+export type VacationStatus = VacationRequest['status'];
 
 export const vacationService = {
   getVacationRequestsByEmployee: async (employeeId: number): Promise<VacationRequest[]> => {
@@ -32,5 +35,18 @@ export const vacationService = {
     return response.data;
   },
 
-  
+  getVacationRequestsForAdmin: async (adminId: number): Promise<VacationRequest[]> => {
+    const response = await api.get(`/vacation-requests/administrator/${adminId}`);
+    return response.data;
+  },
+
+  getVacationRequestsByAdministrator: async (): Promise<VacationRequest[]> => {
+    const response = await api.get(`vacation-requests/administrator`);
+    return response.data;
+  },
+
+  updateVacationRequestStatus: async (id: number, status: VacationStatus): Promise<VacationRequest> => {
+    const response = await api.put(`/vacation-requests/${id}/status`, { status });
+    return response.data;
+  }
 };
