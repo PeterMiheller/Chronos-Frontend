@@ -83,7 +83,7 @@ const ChronosVacationRequests = () => {
                 <th>End</th>
                 <th>Days</th>
                 <th>Status</th>
-                <th>Approved By</th>
+                <th>PDF</th>
           
               </tr>
             </thead>
