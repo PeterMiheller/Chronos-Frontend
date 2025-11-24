@@ -1,20 +1,14 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import "./ChronosVacationRequests.css";
 import { useNavigate, useLocation } from "react-router-dom";
+import { vacationService, type VacationRequest as ServiceVacationRequest } from "../api/vacationService";
 
-interface VacationRequest {
-  id: number;
-  startDate: string;
-  endDate: string;
-  status: string;
-  administratorId: number;
-}
+
 
 const ChronosVacationRequests = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [vacationRequests, setVacationRequests] = useState<VacationRequest[]>([]);
+  const [vacationRequests, setVacationRequests] = useState<ServiceVacationRequest[]>([]);
   const [filter, setFilter] = useState<string>("all");
 
   const calculateWorkingDays = (start: string, end: string) => {
@@ -33,19 +27,17 @@ const ChronosVacationRequests = () => {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
 
-    if (!userId || !token) return;
+    if (!userId) return;
 
-    axios
-      .get(`http://localhost:8080/api/vacation-requests/employee/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setVacationRequests(res.data))
+    // Use centralized API service which handles base URL and auth
+    vacationService
+      .getVacationRequestsByEmployee(Number(userId))
+      .then((res) => setVacationRequests(res))
       .catch((err) => console.error("Error loading vacation requests:", err));
   }, []);
 
-  // FILTRARE
+ 
   const filteredRequests = vacationRequests.filter((req) => {
     if (filter === "all") return true;
     return req.status.toLowerCase() === filter;
@@ -56,7 +48,6 @@ const ChronosVacationRequests = () => {
       <main className="vacation-main-content">
         <section className="requests-section">
 
-          {/* HEADER + CONTROL ROW */}
           <div className="requests-header">
             <h2>Vacation Requests</h2>
 

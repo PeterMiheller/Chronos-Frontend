@@ -11,6 +11,8 @@ import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import Navbar from "./components/Navbar.tsx";
 import ChronosAddVacationRequest from "./pages/ChronosAddVacationRequest.tsx";
+import "react-toastify/dist/ReactToastify.css";
+
 
 
 function App() {
@@ -70,6 +72,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/vacation-requests/new"
+          element={
+            <ProtectedRoute>
+              <ChronosAddVacationRequest />
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* Role-specific routes - require valid JWT + specific role */}
         <Route
@@ -90,18 +101,6 @@ function App() {
         />
       </Routes>
 
-      {state?.backgroundLocation && (
-        <Routes>
-          <Route
-            path="/vacation-requests/new"
-            element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <ChronosAddVacationRequest />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      )}
     </div>
   );
 }

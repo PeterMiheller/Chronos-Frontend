@@ -7,6 +7,8 @@ import { vacationService } from "../api/vacationService";
 import type { VacationRequest } from "../api/vacationService";
 
 const ChronosDashboard = () => {
+
+
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState<string | null>(null);
@@ -16,6 +18,8 @@ const ChronosDashboard = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

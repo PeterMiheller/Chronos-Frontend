@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { vacationService } from "../api/vacationService";
 import "./ChronosAddVacationRequest.css";
 
 const ChronosAddVacationRequest = () => {
@@ -45,7 +45,7 @@ const ChronosAddVacationRequest = () => {
       return;
     }
     
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authToken");
     const employeeId = Number(localStorage.getItem("userId"));
     const administratorId = Number(localStorage.getItem("administratorId"));
 
@@ -61,21 +61,12 @@ const ChronosAddVacationRequest = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/vacation-requests",
-        {
-          employeeId,
-          administratorId,
-          startDate,
-          endDate,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await vacationService.createVacationRequest({
+        employeeId,
+        administratorId,
+        startDate,
+        endDate,
+      });
 
       navigate("/vacation-requests");
       window.location.reload();
