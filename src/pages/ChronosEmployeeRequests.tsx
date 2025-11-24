@@ -29,8 +29,15 @@ const ChronosEmployeeRequests = () => {
         setLoading(true);
         setApiError(null);
         try {
-            // Step 1: Get all vacation requests assigned to the current administrator (via JWT to new endpoint)
-            const data: VacationRequest[] = await vacationService.getVacationRequestsByAdministrator();
+            // Get the logged-in admin's ID
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                throw new Error("User ID not found. Please log in again.");
+            }
+
+            // Step 1: Get all vacation requests assigned to the current administrator using ID
+            // Changed from getVacationRequestsByAdministrator() to getVacationRequestsForAdmin(id)
+            const data: VacationRequest[] = await vacationService.getVacationRequestsForAdmin(Number(userId));
             setRequests(data);
 
             // Step 2: Identify unique employee IDs present in the fetched requests
