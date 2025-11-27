@@ -17,11 +17,11 @@ api.interceptors.request.use(
       return config;
     }
     const token = localStorage.getItem("authToken");
-    if(token) {
-    if (isTokenExpired()) {
-      logout();
-      return Promise.reject(new Error("Token expired"));
-    }
+    if (token) {
+      if (isTokenExpired()) {
+        logout();
+        return Promise.reject(new Error("Token expired"));
+      }
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -36,11 +36,8 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      logout();
-    }
+    // Let individual pages handle 401 errors
+    // Don't auto-logout, especially not on login failures
     return Promise.reject(error);
   }
 );
-
-
