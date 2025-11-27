@@ -1,6 +1,7 @@
 import { api } from "../api/config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./ChronosAuth.css";
 
 const ChronosAuth = () => {
@@ -22,17 +23,15 @@ const ChronosAuth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setError("");
     setLoading(true);
 
-
     try {
-      
       const response = await api.post("auth/login", {
         email: formData.email,
         password: formData.password,
       });
-      
 
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
@@ -65,24 +64,36 @@ const ChronosAuth = () => {
           response.data.companyId.toString()
         );
       }
-      
 
       // Navigate based on user role
       // No need to call setIsAuthenticated - routes check localStorage directly
       if (response.data.role === "SUPERADMIN") {
         navigate("/superadmin");
       } else {
-        
         navigate("/dashboard");
-    
       }
     } catch (err: unknown) {
       console.error("Auth error:", err);
-      const errorMessage =
-        (err as any).response?.data?.message ||
-        (err as any).response?.data?.error ||
-        "An error occurred. Please try again.";
-      setError(errorMessage);
+
+      const error = err as {
+        response?: {
+          status?: number;
+          data?: { message?: string; error?: string };
+        };
+      };
+
+      // Check for 401 Unauthorized
+      if (error?.response?.status === 401) {
+        toast.error("Email or password is incorrect");
+        setError("Email or password is incorrect");
+      } else {
+        const errorMessage =
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "An error occurred. Please try again.";
+        toast.error(errorMessage);
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
