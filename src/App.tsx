@@ -12,11 +12,11 @@ import ChronosCalendarView from "./pages/ChronosCalendarView.tsx";
 import ChronosProfile from "./pages/ChronosProfile.tsx";
 import Navbar from "./components/Navbar.tsx";
 import ChronosEmployeeRequests from "./pages/ChronosEmployeeRequests.tsx";
+import EmployeeManagement from "./pages/EmployeeManagement.tsx";
 
 
 function App() {
   const location = useLocation();
-  const state = location.state as { backgroundLocation?: Location };
 
   // Get user data from localStorage for navbar display
   const userData = {
@@ -87,6 +87,14 @@ function App() {
                   </RoleSpecificRoute>
               }
           />
+        <Route
+            path="/employee-management"
+            element={
+              <RoleSpecificRoute allowedRoles={["ADMINISTRATOR"]}>
+                  <EmployeeManagement />
+              </RoleSpecificRoute>
+            }
+        />
 
 
         {/* Role-specific routes - require valid JWT + specific role */}
