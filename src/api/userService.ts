@@ -55,4 +55,43 @@ export const userService = {
     const response = await api.get(`/users/administrator/${adminId}/employees`);
     return response.data;
   },
+
+  getEmployeesByCompany: async (companyId: number): Promise<User[]> => {
+    const response = await api.get(`/users/employee/${companyId}`);
+    return response.data;
+  },
+
+  createEmployee: async (data: {
+    name: string;
+    email: string;
+    password: string;
+    companyId: number;
+    administratorId: number;
+    vacationDaysTotal: number;
+    expectedWorkload: number;
+  }): Promise<User> => {
+    const response = await api.post("users/employee/create", data);
+    return response.data;
+  },
+
+  updateEmployee: async (
+    id: number,
+    data: {
+      name?: string;
+      email?: string;
+      password?: string;
+      companyId?: number;
+      administratorId?: number;
+      vacationDaysTotal?: number;
+      vacationDaysRemaining?: number;
+      expectedWorkload?: number;
+    }
+  ): Promise<User> => {
+    const response = await api.put(`users/employee/update/${id}`, data);
+    return response.data;
+  },
+
+  deleteEmployee: async (id: number): Promise<void> => {
+    await api.delete(`users/employee/delete/${id}`);
+  },
 };

@@ -185,7 +185,7 @@ const ChronosEmployeeRequests = () => {
         <div className="vacation-requests-page">
             <main className="vacation-main-content">
                 <h1 style={{ fontSize: '2rem', color: '#1f2937', marginBottom: '1.5rem' }}>
-                    Employee Leave Management
+                    Vacation Approvals
                 </h1>
 
                 {/* API Error Notification (visible if an action or fetch failed) */}

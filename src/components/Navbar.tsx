@@ -1,5 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import {User, FileText, Calendar, Bell, LogOut, Briefcase} from "lucide-react";
+import {
+  User,
+  FileText,
+  Calendar,
+  Bell,
+  LogOut,
+  Briefcase,
+} from "lucide-react";
 import { logout, isAuthenticated } from "../utils/auth";
 import "./Navbar.css";
 
@@ -13,7 +20,7 @@ const Navbar = ({ userData }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const userRole = localStorage.getItem("userRole");
-  const isAdmin = userRole === "ADMINISTRATOR" ;
+  const isAdmin = userRole === "ADMINISTRATOR";
   const isDashboard = location.pathname === "/dashboard";
   const isVacationRequests = location.pathname === "/vacation-requests";
   const isCalendar = location.pathname === "/calendar";
@@ -21,8 +28,15 @@ const Navbar = ({ userData }: NavbarProps) => {
   const isEmployeeRequests = location.pathname === "/employee-requests";
   const isSettings = location.pathname === "/settings";
   const isLanding = location.pathname === "/";
+  const isEmployeeManagement = location.pathname === "/employee-management";
   const showDashboardNav =
-    isDashboard || isVacationRequests || isCalendar || isProfile || isSettings || isEmployeeRequests;
+    isDashboard ||
+    isVacationRequests ||
+    isCalendar ||
+    isProfile ||
+    isSettings ||
+    isEmployeeRequests ||
+    isEmployeeManagement;
 
   const handleLogoClick = () => {
     if (isAuthenticated()) {
@@ -44,9 +58,14 @@ const Navbar = ({ userData }: NavbarProps) => {
   return (
     <nav className="chronos-navbar">
       <div className="chronos-navbar-inner">
-        <h1 className="chronos-navbar-logo" onClick={handleLogoClick}>
-          Chronos
-        </h1>
+        <div className="chronos-navbar-logo" onClick={handleLogoClick}>
+          <img
+            src="/chronos-logo.svg"
+            alt="Chronos"
+            className="chronos-logo-icon"
+          />
+          <h1 className="chronos-logo-text">Chronos</h1>
+        </div>
 
         {showDashboardNav && (
           <>
@@ -63,7 +82,18 @@ const Navbar = ({ userData }: NavbarProps) => {
                   isVacationRequests ? "active" : ""
                 }`}
               >
-                <FileText size={18} /> Vacation Requests
+                <FileText size={18} />
+                <span
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    lineHeight: "1.2",
+                  }}
+                >
+                  <span>Create Vacation</span>
+                  <span>Requests</span>
+                </span>
               </button>
               <button
                 onClick={() => navigate("/calendar")}
@@ -72,14 +102,24 @@ const Navbar = ({ userData }: NavbarProps) => {
                 <Calendar size={18} /> Work Calendar
               </button>
               {isAdmin && (
-                  <button
-                      onClick={() => navigate("/employee-requests")}
-                      className={`chronos-nav-tab ${
-                          isEmployeeRequests ? "active" : ""
-                      }`}
-                  >
-                    <Briefcase size={18} /> Employee Requests
-                  </button>
+                <button
+                  onClick={() => navigate("/employee-requests")}
+                  className={`chronos-nav-tab ${
+                    isEmployeeRequests ? "active" : ""
+                  }`}
+                >
+                  <Briefcase size={18} /> Vacation Approvals
+                </button>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={() => navigate("/employee-management")}
+                  className={`chronos-nav-tab ${
+                    isEmployeeManagement ? "active" : ""
+                  }`}
+                >
+                  <Briefcase size={18} /> Employee Management
+                </button>
               )}
             </div>
 

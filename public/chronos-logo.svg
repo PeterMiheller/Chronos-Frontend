@@ -1,0 +1,33 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background circle -->
+  <circle cx="100" cy="100" r="100" fill="white"/>
+  
+  <!-- Outer circle with gradient -->
+  <defs>
+    <linearGradient id="clockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Clock outer ring -->
+  <circle cx="100" cy="100" r="85" stroke="url(#clockGradient)" stroke-width="8" fill="none"/>
+  
+  <!-- Clock hour markers -->
+  <line x1="100" y1="25" x2="100" y2="35" stroke="url(#clockGradient)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="175" y1="100" x2="165" y2="100" stroke="url(#clockGradient)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="100" y1="175" x2="100" y2="165" stroke="url(#clockGradient)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="25" y1="100" x2="35" y2="100" stroke="url(#clockGradient)" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Hour hand (pointing at 10) -->
+  <line x1="100" y1="100" x2="75" y2="65" stroke="#2563eb" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Minute hand (pointing at 2) -->
+  <line x1="100" y1="100" x2="135" y2="75" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Center dot -->
+  <circle cx="100" cy="100" r="8" fill="url(#clockGradient)"/>
+  
+  <!-- Decorative arc for modern touch -->
+  <path d="M 140 60 A 56.57 56.57 0 0 1 140 140" stroke="url(#clockGradient)" stroke-width="3" fill="none" opacity="0.4" stroke-linecap="round"/>
+</svg>

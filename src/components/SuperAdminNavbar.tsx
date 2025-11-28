@@ -32,9 +32,14 @@ const SuperAdminNavbar = () => {
   return (
     <nav className="chronos-navbar">
       <div className="chronos-navbar-inner">
-        <h1 className="chronos-navbar-logo" onClick={handleLogoClick}>
-          Chronos
-        </h1>
+        <div className="chronos-navbar-logo" onClick={handleLogoClick}>
+          <img
+            src="/chronos-logo.svg"
+            alt="Chronos"
+            className="chronos-logo-icon"
+          />
+          <h1 className="chronos-logo-text">Chronos</h1>
+        </div>
 
         <div className="chronos-navbar-tabs">
           <button
