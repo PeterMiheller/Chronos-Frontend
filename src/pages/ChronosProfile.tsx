@@ -1,30 +1,61 @@
-import { Mail, Phone, MapPin, Briefcase, Calendar, Clock } from "lucide-react";
+import { Mail, MapPin, Briefcase, Calendar, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { userService } from "../api/userService";
+import type { User } from "../api/userService";
 import "./ChronosProfile.css";
 
 const ChronosProfile = () => {
-  // Hardcoded user data
-  const userData = {
-    name: "John Doe",
-    email: "john.doe@techsolutions.com",
-    phone: "+49 123 456 7890",
-    role: "Senior Software Engineer",
-    department: "Engineering",
-    company: "Tech Solutions GmbH",
-    location: "Berlin, Germany",
-    joinDate: "January 15, 2022",
-    employeeId: "EMP-2022-1234",
-    vacationDays: {
-      total: 30,
-      used: 12,
-      remaining: 18,
-    },
-    workSchedule: {
-      hoursPerWeek: 40,
-      workDays: "Monday - Friday",
-      startTime: "09:00",
-      endTime: "17:00",
-    },
-  };
+  const [userData, setUserData] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const userEmail = localStorage.getItem("userEmail");
+
+        if (!userEmail) {
+          setError("User not authenticated");
+          return;
+        }
+
+        const user = await userService.getUserByEmail(userEmail);
+        setUserData(user);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError("Failed to load user data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="profile-container">
+        <div className="profile-content">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !userData) {
+    return (
+      <div className="profile-container">
+        <div className="profile-content">
+          <p>Error: {error || "User data not found"}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const vacationDaysUsed = userData.vacationDaysTotal && userData.vacationDaysRemaining
+    ? userData.vacationDaysTotal - userData.vacationDaysRemaining
+    : 0;
 
   return (
     <div className="profile-container">
@@ -41,8 +72,14 @@ const ChronosProfile = () => {
           </div>
           <div className="profile-header-info">
             <h2>{userData.name}</h2>
-            <p className="profile-role">{userData.role}</p>
-            <p className="profile-employee-id">ID: {userData.employeeId}</p>
+            <p className="profile-role">
+              {userData.userType === "SUPERADMIN"
+                ? "Super Administrator"
+                : userData.userType === "ADMINISTRATOR"
+                ? "Administrator"
+                : "Employee"}
+            </p>
+            <p className="profile-employee-id">ID: {userData.id}</p>
           </div>
         </div>
 
@@ -57,106 +94,88 @@ const ChronosProfile = () => {
                 <p className="profile-info-value">{userData.email}</p>
               </div>
             </div>
-            <div className="profile-info-item">
-              <Phone size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Phone</p>
-                <p className="profile-info-value">{userData.phone}</p>
+            {userData.company && (
+              <div className="profile-info-item">
+                <MapPin size={20} className="profile-icon" />
+                <div>
+                  <p className="profile-info-label">Location</p>
+                  <p className="profile-info-value">{userData.company.address}</p>
+                </div>
               </div>
-            </div>
-            <div className="profile-info-item">
-              <MapPin size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Location</p>
-                <p className="profile-info-value">{userData.location}</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Employment Details */}
-        <div className="profile-section">
-          <h3 className="profile-section-title">Employment Details</h3>
-          <div className="profile-info-grid">
-            <div className="profile-info-item">
-              <Briefcase size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Department</p>
-                <p className="profile-info-value">{userData.department}</p>
+        {userData.company && (
+          <div className="profile-section">
+            <h3 className="profile-section-title">Employment Details</h3>
+            <div className="profile-info-grid">
+              <div className="profile-info-item">
+                <Briefcase size={20} className="profile-icon" />
+                <div>
+                  <p className="profile-info-label">Company</p>
+                  <p className="profile-info-value">{userData.company.name}</p>
+                </div>
               </div>
-            </div>
-            <div className="profile-info-item">
-              <Calendar size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Join Date</p>
-                <p className="profile-info-value">{userData.joinDate}</p>
-              </div>
-            </div>
-            <div className="profile-info-item">
-              <Briefcase size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Company</p>
-                <p className="profile-info-value">{userData.company}</p>
+              <div className="profile-info-item">
+                <Briefcase size={20} className="profile-icon" />
+                <div>
+                  <p className="profile-info-label">User Type</p>
+                  <p className="profile-info-value">{userData.userType}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Work Schedule */}
-        <div className="profile-section">
-          <h3 className="profile-section-title">Work Schedule</h3>
-          <div className="profile-info-grid">
-            <div className="profile-info-item">
-              <Clock size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Hours per Week</p>
-                <p className="profile-info-value">
-                  {userData.workSchedule.hoursPerWeek} hours
-                </p>
+        {userData.expectedWorkload && (
+          <div className="profile-section">
+            <h3 className="profile-section-title">Work Schedule</h3>
+            <div className="profile-info-grid">
+              <div className="profile-info-item">
+                <Clock size={20} className="profile-icon" />
+                <div>
+                  <p className="profile-info-label">Expected Workload</p>
+                  <p className="profile-info-value">
+                    {userData.expectedWorkload} hours/week
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="profile-info-item">
-              <Calendar size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Work Days</p>
-                <p className="profile-info-value">
-                  {userData.workSchedule.workDays}
-                </p>
-              </div>
-            </div>
-            <div className="profile-info-item">
-              <Clock size={20} className="profile-icon" />
-              <div>
-                <p className="profile-info-label">Working Hours</p>
-                <p className="profile-info-value">
-                  {userData.workSchedule.startTime} -{" "}
-                  {userData.workSchedule.endTime}
-                </p>
+              <div className="profile-info-item">
+                <Calendar size={20} className="profile-icon" />
+                <div>
+                  <p className="profile-info-label">Work Days</p>
+                  <p className="profile-info-value">Monday - Friday</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Vacation Days */}
-        <div className="profile-section">
-          <h3 className="profile-section-title">Vacation Days</h3>
-          <div className="vacation-stats">
-            <div className="vacation-stat-card">
-              <p className="vacation-stat-value">{userData.vacationDays.total}</p>
-              <p className="vacation-stat-label">Total Days</p>
-            </div>
-            <div className="vacation-stat-card">
-              <p className="vacation-stat-value used">{userData.vacationDays.used}</p>
-              <p className="vacation-stat-label">Used Days</p>
-            </div>
-            <div className="vacation-stat-card">
-              <p className="vacation-stat-value remaining">
-                {userData.vacationDays.remaining}
-              </p>
-              <p className="vacation-stat-label">Remaining Days</p>
+        {userData.vacationDaysTotal !== null && userData.vacationDaysRemaining !== null && (
+          <div className="profile-section">
+            <h3 className="profile-section-title">Vacation Days</h3>
+            <div className="vacation-stats">
+              <div className="vacation-stat-card">
+                <p className="vacation-stat-value">{userData.vacationDaysTotal}</p>
+                <p className="vacation-stat-label">Total Days</p>
+              </div>
+              <div className="vacation-stat-card">
+                <p className="vacation-stat-value used">{vacationDaysUsed}</p>
+                <p className="vacation-stat-label">Used Days</p>
+              </div>
+              <div className="vacation-stat-card">
+                <p className="vacation-stat-value remaining">
+                  {userData.vacationDaysRemaining}
+                </p>
+                <p className="vacation-stat-label">Remaining Days</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
