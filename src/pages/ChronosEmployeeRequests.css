@@ -189,3 +189,98 @@
         margin-right: 0.25rem;
     }
 }
+
+/* ============================================
+   CONFIRMATION MODAL STYLES
+   ============================================ */
+.page-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    padding: 1rem;
+}
+
+.confirmation-modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: popup 0.25s ease-out;
+}
+
+@keyframes popup {
+    from {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.confirmation-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 1.2rem 0;
+}
+
+.confirmation-message {
+    font-size: 1rem;
+    color: #4b5563;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+}
+
+.confirmation-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.confirm-btn {
+    background: linear-gradient(to right, #2563eb, #4f46e5);
+    color: white;
+    padding: 0.7rem 1.3rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.confirm-btn:hover:not(:disabled) {
+    background: linear-gradient(to right, #1d4ed8, #4338ca);
+}
+
+.cancel-btn {
+    background: #e5e7eb;
+    color: #374151;
+    padding: 0.7rem 1.3rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.cancel-btn:hover:not(:disabled) {
+    background: #d1d5db;
+}
+
+.confirm-btn:disabled,
+.cancel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
