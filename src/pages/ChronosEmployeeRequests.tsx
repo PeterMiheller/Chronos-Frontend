@@ -24,6 +24,14 @@ const ChronosEmployeeRequests = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [apiError, setApiError] = useState<string | null>(null);
 
+    // State for confirmation dialog
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<{
+        id: number;
+        action: 'APPROVED' | 'REJECTED';
+        message: string;
+    } | null>(null);
+
     // Function to fetch vacation requests and populate the employee names cache
     const fetchRequests = useCallback(async () => {
         setLoading(true);
@@ -92,9 +100,9 @@ const ChronosEmployeeRequests = () => {
         }));
     }, [requests, employeeNamesCache]);
 
-    // Filter requests for the Pending table (only SUBMITTED status)
+    // Filter requests for the Pending table (only PENDING status)
     const pendingRequests = useMemo(() =>
-            uiRequests.filter(req => req.status === "SUBMITTED"),
+            uiRequests.filter(req => req.status === "PENDING"),
         [uiRequests]
     );
 
@@ -112,21 +120,51 @@ const ChronosEmployeeRequests = () => {
     const processRequest = async (id: number, newStatus: VacationStatus) => {
         setActionLoading(id);
         setApiError(null);
+        setShowConfirmDialog(false);
 
         try {
-            // Call API to update the status (this also updates remaining vacation days in backend)
-            // This calls the new API endpoint we defined: PUT /api/vacation-requests/{id}/status
+            console.log(`Updating vacation request ${id} to status: "${newStatus}"`);
             await vacationService.updateVacationRequestStatus(id, newStatus);
-            toast.success(`Request #${id} successfully ${newStatus.toLowerCase()}.`);
+
+            const successMessage = newStatus === "APPROVED"
+                ? `Request #${id} has been approved successfully.`
+                : `Request #${id} has been rejected.`;
+
+            toast.success(successMessage, {
+                position: "top-center",
+                autoClose: 3000,
+            });
 
             // Refresh the entire list to reflect the status change and move the request between tables
             await fetchRequests();
 
         } catch (err: any) {
             console.error("API Error:", err);
-            // Extract business logic error message from headers (sent by Java Controller)
-            const apiMessage = err.response?.headers['error-message'] || err.response?.data?.message || `Failed to process request #${id}.`;
-            toast.error(apiMessage);
+            console.error("Error response:", err.response);
+
+            // Extract the most relevant error message
+            let apiMessage = `Failed to process request #${id}.`;
+
+            if (err.response?.data) {
+                if (typeof err.response.data === 'string') {
+                    apiMessage = err.response.data;
+                } else if (err.response.data.message) {
+                    apiMessage = err.response.data.message;
+                } else if (err.response.data.error) {
+                    apiMessage = err.response.data.error;
+                }
+            }
+
+            // Provide helpful message for insufficient vacation days
+            if (err.response?.status === 400 && !apiMessage.toLowerCase().includes('vacation')) {
+                apiMessage = "Not enough vacation days remaining for this employee.";
+            }
+
+            console.error("Error message:", apiMessage);
+            toast.error(apiMessage, {
+                position: "top-center",
+                autoClose: 5000,
+            });
             setApiError(apiMessage);
         } finally {
             setActionLoading(null);
@@ -135,16 +173,35 @@ const ChronosEmployeeRequests = () => {
 
     // Handler for approving a request
     const handleApprove = (id: number) => {
-        if (window.confirm("Are you sure you want to APPROVE this request? This will deduct days from the employee's remaining vacation.")) {
-            processRequest(id, "APPROVED");
-        }
+        setConfirmAction({
+            id,
+            action: 'APPROVED',
+            message: 'Are you sure you want to approve this vacation request? This will deduct days from the employee\'s remaining vacation balance.'
+        });
+        setShowConfirmDialog(true);
     };
 
     // Handler for rejecting a request
     const handleReject = (id: number) => {
-        if (window.confirm("Are you sure you want to REJECT this request?")) {
-            processRequest(id, "REJECTED");
+        setConfirmAction({
+            id,
+            action: 'REJECTED',
+            message: 'Are you sure you want to reject this vacation request?'
+        });
+        setShowConfirmDialog(true);
+    };
+
+    // Handler for confirming the action
+    const handleConfirm = () => {
+        if (confirmAction) {
+            processRequest(confirmAction.id, confirmAction.action);
         }
+    };
+
+    // Handler for canceling the action
+    const handleCancel = () => {
+        setShowConfirmDialog(false);
+        setConfirmAction(null);
     };
 
     /**
@@ -168,7 +225,7 @@ const ChronosEmployeeRequests = () => {
         switch (status) {
             case "APPROVED": return "status-approved";
             case "REJECTED": return "status-rejected";
-            case "SUBMITTED": return "status-pending";
+            case "PENDING": return "status-pending";
             default: return "status-default";
         }
     };
@@ -332,6 +389,34 @@ const ChronosEmployeeRequests = () => {
                 </section>
 
             </main>
+
+            {/* Confirmation Dialog Modal */}
+            {showConfirmDialog && confirmAction && (
+                <div className="page-overlay">
+                    <div className="confirmation-modal">
+                        <h2 className="confirmation-title">
+                            {confirmAction.action === 'APPROVED' ? 'Approve Request' : 'Reject Request'}
+                        </h2>
+                        <p className="confirmation-message">{confirmAction.message}</p>
+                        <div className="confirmation-buttons">
+                            <button
+                                className="cancel-btn"
+                                onClick={handleCancel}
+                                disabled={actionLoading !== null}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="confirm-btn"
+                                onClick={handleConfirm}
+                                disabled={actionLoading !== null}
+                            >
+                                {actionLoading !== null ? 'Processing...' : 'Confirm'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
