@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
+import { Download } from 'lucide-react';
 
 // Import necessary types and services
 import { vacationService, type VacationRequest, type VacationStatus } from "../api/vacationService";
@@ -204,6 +205,37 @@ const ChronosEmployeeRequests = () => {
         setConfirmAction(null);
     };
 
+    // Handler for downloading PDF
+    const handleDownloadPdf = async (id: number) => {
+        try {
+            const blob = await vacationService.downloadPdf(id);
+            
+            // Create a URL for the blob
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `vacation_request_${id}.pdf`);
+            
+            // Append to body, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+            
+            // Clean up
+            window.URL.revokeObjectURL(url);
+        } catch (err: any) {
+            console.error("Error downloading PDF:", err);
+            const status = err.response?.status;
+            if (status === 404) {
+                toast.error("PDF not found for this request.");
+            } else if (status === 403) {
+                toast.error("You do not have permission to download this PDF.");
+            } else {
+                toast.error("Failed to download PDF.");
+            }
+        }
+    };
+
     /**
      * Calculates the number of days between two ISO date strings (inclusive).
      * @param start Start date string (ISO format).
@@ -300,17 +332,15 @@ const ChronosEmployeeRequests = () => {
                                                 >
                                                     {actionLoading === req.id ? 'Processing...' : 'Reject'}
                                                 </button>
-                                                {req.pdfPath && (
-                                                    <a
-                                                        href={req.pdfPath}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="view-btn"
-                                                        style={{ textDecoration: 'none' }}
-                                                    >
-                                                        View PDF
-                                                    </a>
-                                                )}
+                                                
+                                                <button
+                                                    onClick={() => handleDownloadPdf(req.id)}
+                                                    className="view-btn"
+                                                    title="Download PDF"
+                                                    style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                                                >
+                                                    <Download size={16} /> PDF
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -362,17 +392,14 @@ const ChronosEmployeeRequests = () => {
                                                 </span>
                                         </td>
                                         <td>
-                                            {req.pdfPath ? (
-                                                <a
-                                                    href={req.pdfPath}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="view-btn"
-                                                    style={{ border: 'none', background: 'transparent' }}
-                                                >
-                                                    View PDF
-                                                </a>
-                                            ) : '-'}
+                                            <button
+                                                onClick={() => handleDownloadPdf(req.id)}
+                                                className="view-btn"
+                                                title="Download PDF"
+                                                style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', border: 'none', background: 'transparent' }}
+                                            >
+                                                <Download size={16} /> Download
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
