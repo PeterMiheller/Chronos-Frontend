@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import "./ChronosVacationRequests.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { vacationService, type VacationRequest as ServiceVacationRequest } from "../api/vacationService";
-
+import { Download } from "lucide-react";
+import { toast } from "react-toastify";
 
 const ChronosVacationRequests = () => {
   const navigate = useNavigate();
@@ -36,6 +37,35 @@ const ChronosVacationRequests = () => {
       .catch((err) => console.error("Error loading vacation requests:", err));
   }, []);
 
+  const handleDownloadPdf = async (id: number) => {
+    try {
+      const blob = await vacationService.downloadPdf(id);
+      
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `vacation_request_${id}.pdf`);
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error("Error downloading PDF:", err);
+      const status = err.response?.status;
+      if (status === 404) {
+        toast.error("PDF not found for this request.");
+      } else if (status === 403) {
+        toast.error("You do not have permission to download this PDF.");
+      } else {
+        toast.error("Failed to download PDF.");
+      }
+    }
+  };
  
   const filteredRequests = vacationRequests.filter((req) => {
     if (filter === "all") return true;
@@ -84,7 +114,6 @@ const ChronosVacationRequests = () => {
                 <th>Days</th>
                 <th>Status</th>
                 <th>PDF</th>
-          
               </tr>
             </thead>
 
@@ -98,9 +127,38 @@ const ChronosVacationRequests = () => {
                     {req.status}
                   </td>
                   <td>
-                    {req.status === "APPROVED"
-                      ? `Admin #${req.administratorId}`
-                      : "—"}
+                    {req.status === "APPROVED" ? (
+                      <button
+                        onClick={() => handleDownloadPdf(req.id)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          padding: "0.5rem 1rem",
+                          background: "white",
+                          color: "#2563eb",
+                          border: "1px solid #2563eb",
+                          borderRadius: "0.375rem",
+                          cursor: "pointer",
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          transition: "all 0.2s"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#2563eb";
+                          e.currentTarget.style.color = "white";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "white";
+                          e.currentTarget.style.color = "#2563eb";
+                        }}
+                        title="Download PDF"
+                      >
+                        <Download size={16} /> Download
+                      </button>
+                    ) : (
+                      <span style={{ color: "#9ca3af" }}>—</span>
+                    )}
                   </td>
                 </tr>
               ))}

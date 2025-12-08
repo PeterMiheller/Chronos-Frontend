@@ -50,5 +50,12 @@ export const vacationService = {
     const response = await api.put(`vacation-requests/${id}/status`, { status });
     console.log('API Response:', response.data);
     return response.data;
+  },
+
+  downloadPdf: async (id: number): Promise<Blob> => {
+    const response = await api.get(`vacation-requests/${id}/pdf`, {
+      responseType: "blob",
+    });
+    return response.data;
   }
 };
