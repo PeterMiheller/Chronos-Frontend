@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import "./EmployeeManagement.css";
 import { userService } from "../api/userService";
 import type { User } from "../api/userService";
-import { Pencil, Trash2, UserPlus, Users, X } from "lucide-react";
+import { Pencil, Trash2, UserPlus, Users, X, Shield } from "lucide-react";
 
 const EmployeeManagement = () => {
   const [employees, setEmployees] = useState<User[]>([]);
@@ -33,6 +33,7 @@ const EmployeeManagement = () => {
     name: "",
     email: "",
     vacationDaysTotal: "",
+    vacationDaysRemaining: "",
     expectedWorkload: "",
   });
   const [savingEdit, setSavingEdit] = useState(false);
@@ -46,12 +47,13 @@ const EmployeeManagement = () => {
         setLoading(false);
         return;
       }
-      const data = await userService.getEmployeesByCompany(Number(companyId));
+      // Fetch all staff (employees + administrators)
+      const data = await userService.getAllStaffByCompany(Number(companyId));
       setEmployees(data);
       setError(null);
     } catch (err) {
-      setError("Failed to load employees");
-      console.error("Error fetching employees:", err);
+      setError("Failed to load staff");
+      console.error("Error fetching staff:", err);
     } finally {
       setLoading(false);
     }
@@ -67,6 +69,7 @@ const EmployeeManagement = () => {
       name: employee.name,
       email: employee.email,
       vacationDaysTotal: employee.vacationDaysTotal?.toString() || "",
+      vacationDaysRemaining: employee.vacationDaysRemaining?.toString() || "",
       expectedWorkload: employee.expectedWorkload?.toString() || "",
     });
     setShowEditModal(true);
@@ -79,6 +82,7 @@ const EmployeeManagement = () => {
       name: "",
       email: "",
       vacationDaysTotal: "",
+      vacationDaysRemaining: "",
       expectedWorkload: "",
     });
   };
@@ -96,18 +100,33 @@ const EmployeeManagement = () => {
 
     setSavingEdit(true);
     try {
-      await userService.updateEmployee(employeeToEdit.id, {
+      const updateData = {
         name: editFormData.name,
         email: editFormData.email,
         vacationDaysTotal: Number(editFormData.vacationDaysTotal),
+        vacationDaysRemaining: Number(editFormData.vacationDaysRemaining),
         expectedWorkload: Number(editFormData.expectedWorkload),
-      });
-      toast.success("Employee updated successfully!");
+      };
+
+      // Use different service method based on user type
+      if (employeeToEdit.userType === "ADMINISTRATOR") {
+        await userService.updateAdministrator(employeeToEdit.id, updateData);
+      } else {
+        await userService.updateEmployee(employeeToEdit.id, updateData);
+      }
+
+      toast.success(
+        `${
+          employeeToEdit.userType === "ADMINISTRATOR"
+            ? "Administrator"
+            : "Employee"
+        } updated successfully!`
+      );
       handleCloseEditModal();
       await fetchEmployees();
     } catch (err) {
-      console.error("Error updating employee:", err);
-      toast.error("Failed to update employee. Please try again.");
+      console.error("Error updating user:", err);
+      toast.error("Failed to update user. Please try again.");
     } finally {
       setSavingEdit(false);
     }
@@ -128,6 +147,13 @@ const EmployeeManagement = () => {
 
   const handleConfirmDelete = async () => {
     if (!employeeToDelete) return;
+
+    // Prevent deleting administrators for now
+    if (employeeToDelete.userType === "ADMINISTRATOR") {
+      toast.error("Administrators cannot be deleted from this interface.");
+      handleCloseDeleteModal();
+      return;
+    }
 
     setDeletingId(employeeToDelete.id);
     try {
@@ -193,7 +219,6 @@ const EmployeeManagement = () => {
     } catch (err) {
       console.error("Error creating employee:", err);
 
-      // Check if error response contains email already exists message
       const error = err as {
         response?: {
           data?: { error?: string; email?: string; message?: string };
@@ -211,14 +236,30 @@ const EmployeeManagement = () => {
     }
   };
 
+  const getUserTypeIcon = (userType: string) => {
+    return userType === "ADMINISTRATOR" ? (
+      <Shield size={16} />
+    ) : (
+      <Users size={16} />
+    );
+  };
+
+  const getUserTypeBadge = (userType: string) => {
+    return userType === "ADMINISTRATOR" ? (
+      <span className="user-type-badge admin-badge">Administrator</span>
+    ) : (
+      <span className="user-type-badge employee-badge">Employee</span>
+    );
+  };
+
   return (
     <>
       <div className="employee-management">
         <main className="main-content">
           <div className="header">
             <div>
-              <h1>Employee Management</h1>
-              <p>Manage all employees in your company</p>
+              <h1>Staff Management</h1>
+              <p>Manage employees and administrators in your company</p>
             </div>
             <button
               className="create-employee-btn"
@@ -229,14 +270,14 @@ const EmployeeManagement = () => {
             </button>
           </div>
 
-          {loading && <div className="loading">Loading employees...</div>}
+          {loading && <div className="loading">Loading staff...</div>}
 
           {error && <div className="error-message">{error}</div>}
 
           {!loading && !error && employees.length === 0 && (
             <div className="empty-state">
               <Users size={48} />
-              <h3>No employees yet</h3>
+              <h3>No staff members yet</h3>
               <p>Create your first employee to get started</p>
             </div>
           )}
@@ -248,6 +289,7 @@ const EmployeeManagement = () => {
                   <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Type</th>
                     <th>Email</th>
                     <th>Vacation Days Total</th>
                     <th>Vacation Days Remaining</th>
@@ -260,9 +302,10 @@ const EmployeeManagement = () => {
                     <tr key={employee.id}>
                       <td>{employee.id}</td>
                       <td className="employee-name">
-                        <Users size={16} />
+                        {getUserTypeIcon(employee.userType)}
                         {employee.name}
                       </td>
+                      <td>{getUserTypeBadge(employee.userType)}</td>
                       <td>{employee.email}</td>
                       <td>{employee.vacationDaysTotal ?? "-"}</td>
                       <td>{employee.vacationDaysRemaining ?? "-"}</td>
@@ -271,18 +314,20 @@ const EmployeeManagement = () => {
                         <button
                           className="action-btn edit-btn"
                           onClick={() => handleEdit(employee)}
-                          title="Edit Employee"
+                          title="Edit User"
                         >
                           <Pencil size={16} />
                         </button>
-                        <button
-                          className="action-btn delete-btn"
-                          onClick={() => handleDelete(employee.id)}
-                          title="Delete Employee"
-                          disabled={deletingId === employee.id}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {employee.userType === "EMPLOYEE" && (
+                          <button
+                            className="action-btn delete-btn"
+                            onClick={() => handleDelete(employee.id)}
+                            disabled={deletingId === employee.id}
+                            title="Delete Employee"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -293,7 +338,7 @@ const EmployeeManagement = () => {
         </main>
       </div>
 
-      {/* Create Employee Modal */}
+      {/* Create Employee Modal - unchanged */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={handleCloseCreateModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -403,12 +448,17 @@ const EmployeeManagement = () => {
         </div>
       )}
 
-      {/* Edit Employee Modal */}
+      {/* Edit Employee/Administrator Modal */}
       {showEditModal && employeeToEdit && (
         <div className="modal-overlay" onClick={handleCloseEditModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Edit Employee</h3>
+              <h3>
+                Edit{" "}
+                {employeeToEdit.userType === "ADMINISTRATOR"
+                  ? "Administrator"
+                  : "Employee"}
+              </h3>
               <button onClick={handleCloseEditModal} className="close-btn">
                 <X size={24} />
               </button>
@@ -458,6 +508,24 @@ const EmployeeManagement = () => {
                     className="form-input"
                     required
                     min="0"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="editVacationDaysRemaining">
+                    Vacation Days Remaining
+                  </label>
+                  <input
+                    type="number"
+                    id="editVacationDaysRemaining"
+                    name="vacationDaysRemaining"
+                    value={editFormData.vacationDaysRemaining}
+                    onChange={handleEditInputChange}
+                    placeholder="20"
+                    className="form-input"
+                    required
+                    min="0"
+                    max={editFormData.vacationDaysTotal}
                   />
                 </div>
 

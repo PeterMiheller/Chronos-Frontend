@@ -94,4 +94,24 @@ export const userService = {
   deleteEmployee: async (id: number): Promise<void> => {
     await api.delete(`users/employee/delete/${id}`);
   },
+
+  getAllStaffByCompany: async (companyId: number): Promise<User[]> => {
+    const response = await api.get(`users/company/${companyId}/all-staff`);
+    return response.data;
+  },
+
+  updateAdministrator: async (
+    id: number,
+    data: {
+      name?: string;
+      email?: string;
+      password?: string;
+      vacationDaysTotal?: number;
+      vacationDaysRemaining?: number;
+      expectedWorkload?: number;
+    }
+  ): Promise<User> => {
+    const response = await api.put(`users/administrator/update/${id}`, data);
+    return response.data;
+  },
 };
